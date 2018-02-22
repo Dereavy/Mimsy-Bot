@@ -19,14 +19,15 @@ const commentsStream = require('youtube-comments-stream');
 var livestreamStatus = true;
 var VIDEO_ID = "";
 var VIDEO_TITLE = "";
-var loggedInList = [];
+var loggedInList = []; //List of users that have logged in this mimsy day!
+var activeVoiceChannel = ""; //Voice Channel the bot is currently in, prevents a user from summoning the bot multiple times to the same channel.
 const bot = new Discord.Client();
 const Cbot = new cleverbot(Login.getCleverbotKey(), Login.getCleverbotUser(), "MimsyAI");
 
 /* CONFIGURATION */
-var activeVoiceChannel = ""; //Voice Channel the bot is currently in, prevents a user from summoning the bot multiple times to the same channel.
 const messageLogChannelID = 415987090480955392;
 const mimsyTalkChannelID = 390243354211909632;
+const soundboardChannelID = 414497480928133120;
 const flowerRoleID = "404647452201844736";
 const bananaRoleID = "325737032972238850";
 const ownerID = 238825468864888833;
@@ -338,7 +339,7 @@ bot.on('message', (message) => {
     }
 
     //Soundboard
-    if (message.channel.id == 414497480928133120) {
+    if (message.channel.id == soundboardChannelID) {
         if (command == "sb") {
             if (lowercasemessage == "help") {
                 message.author.sendMessage(Soundboard.getTutorial());
