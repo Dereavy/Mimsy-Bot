@@ -38,6 +38,7 @@ setInterval(function() {
     console.log('It\'s a new beautifull day!');
     loggedInList = [];
 }, 43200000);
+
 /*
 function getVIDEO_ID() {
     if (!error && response.statusCode == 200) {
