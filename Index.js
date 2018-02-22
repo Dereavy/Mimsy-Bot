@@ -1,5 +1,6 @@
 ﻿"use strict";
-/* Bot Details */
+
+/* DEPENDENCIES */
 var getJSON = require('get-json');
 const util = require('util');
 var request = require("request")
@@ -7,38 +8,46 @@ const Actions = require("./mimsyactions.js");
 const Soundboard = require("./Soundboard.js");
 const music = require('discord.js-music-v11');
 const Discord = require("discord.js");
-const bot = new Discord.Client();
 const Animals = require("./chatanimals.js");
 const Rules = require("./rules.js");
 const Login = require('./botToken.js')
 const AIntelli = require('ai-chatbot');
-var cleverbot = require("cleverbot.io");
-const Cbot = new cleverbot('Y75nX7JzzRUhFKkA', 'GmS5xkKOuEusyBfWElUNYG1eZH8Q7lY9');
 var cleverbot = require("better-cleverbot-io");
-Cbot.setNick("MimsyAI")
 const commentsStream = require('youtube-comments-stream');
+
+/* INITIALISATION */
+var livestreamStatus = true;
+var VIDEO_ID = "";
+var VIDEO_TITLE = "";
+var loggedInList = [];
+const bot = new Discord.Client();
+const Cbot = new cleverbot(Login.getCleverbotKey(), Login.getCleverbotUser(), "MimsyAI");
+
+/* CONFIGURATION */
+var activeVoiceChannel = ""; //Voice Channel the bot is currently in, prevents a user from summoning the bot multiple times to the same channel.
+const messageLogChannelID = 415987090480955392;
+const mimsyTalkChannelID = 390243354211909632;
+const flowerRoleID = "404647452201844736";
+const bananaRoleID = "325737032972238850";
+const ownerID = 238825468864888833;
+var prefix = "!- ";
+
+/* YOUTUBE */
 const YT_API_KEY = Login.getYT_API_KEY();
 const YT_Channel_ID = Login.getYT_Channel_ID();
 //https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=UCIPGEO89HvJBFQ01M56Yqcw&eventType=live&type=video&key=AIzaSyBOJ0kMFLGNzBXqeAqNQl2bmHlZKTj7Hi8
 const YTAPIVideoURL = ('https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=' + YT_Channel_ID + '&eventType=live&type=video&key=' + YT_API_KEY);
 const YTAPIStatusURL = ('https://www.googleapis.com/youtube/v3/liveBroadcasts?part=id%2Csnippet%2Cstatus&mine=true&broadcastStatus=active&key=' + YT_API_KEY);
-var livestreamStatus = true;
-var VIDEO_ID = "";
-var VIDEO_TITLE = "";
-var lastOptionsReset; //every 12 hours 
-var loggedInList = [];
-//Voice Channel the bot is currently in, prevents a user from summoning the bot multiple times to the same channel.
-var activeVoiceChannel = "";
-var prefix = "!- ";
-var ownerID = 238825468864888833;
+
 bot.login(Login.getToken());
 console.log(`[Start] ${new Date()}`);
 console.log("Discord Bot: Mimsy has launched!");
 setInterval(function() {
     console.log('It\'s a new beautifull day!');
-    loggedInList = [];
+    loggedInList = []; //Start a new mimsy day every 12 hours 
 }, 43200000);
-/*
+
+/* DETECT IF I AM STREAMING, OUTPUT NOTIFICATION IF I AM + VIDEO LINK
 function getVIDEO_ID() {
     if (!error && response.statusCode == 200) {
         var jsonContent = JSON.parse(body);
@@ -120,7 +129,7 @@ bot.on('ready', () => {
 /* Chat */
 bot.on('message', (message) => {
     if (message.author.bot) return;
-    var logChannel = bot.channels.get('415987090480955392');
+    var logChannel = bot.channels.get(messageLogChannelID);
     var spacer = "";
     var d = new Date();
     var date = "`" + d.getDate() + "/" + d.getMonth() + "/" + d.getFullYear() + "-`_`" + d.getHours() + ":" + d.getMinutes() + ":" + d.getSeconds() + "`_";
@@ -130,7 +139,6 @@ bot.on('message', (message) => {
         for (var i = 20; i > message.author.username.length; i--) {
             spacer += " .";
         }
-        //message.channel.send(415987090480955392,"[PM] " + message.author.username + ": \"" + message.content + "\"");
         var loggedMessage = "" + date + " " + "**[PM]** " + spacer + " " + message.author.username + ": =>  **\"** _" + message.content + "_ **\"**";
         logChannel.send(loggedMessage);
         return;
@@ -168,11 +176,11 @@ bot.on('message', (message) => {
     if (isLoggedIn(message.author.id) == false) {
         loggedInList.push(message.author.id);
         var hasNoRank = true;
-        if (message.member.roles.has("404647452201844736")) {
+        if (message.member.roles.has(flowerRoleID)) {
             message.react(Actions.randomFlowerShortcut());
             hasRank();
         }
-        if (message.member.roles.has("325737032972238850")) {
+        if (message.member.roles.has(bananaRoleID)) {
             message.react('\uD83C\uDF4C');
             hasRank();
         }
@@ -192,7 +200,7 @@ bot.on('message', (message) => {
 
     var lowercaseMessage = message.content.toLowerCase();
     if (Actions.mimsyVerify(lowercaseMessage) == true) {
-        if (message.channel.id == 390243354211909632) {
+        if (message.channel.id == mimsyTalkChannelID) {
             Cbot.create(function(err, MimsyAI) {
                 Cbot.ask(lowercasemessage, function(err, response) {
                     message.channel.send(response); // Will likely be: "Living in a lonely world"
@@ -437,25 +445,12 @@ bot.on('message', (message) => {
     if (command == "ai") {
         Cbot.create(function(err, MimsyAI) {
             Cbot.ask(lowercasemessage, function(err, response) {
-                message.channel.send(response); // Will likely be: "Living in a lonely world"
+                message.channel.send("node1" + response); // Will likely be: "Living in a lonely world"
             });
         });
-        const clbot = new cleverbot({ user: Login.getCleverbotUser(), key: Login.getCleverbotKey(), nick: message.author.id });
-        clbot.create().then(() => {
-
-        }).catch(err => {
-            console.log("[ERROR] " + err);
-        });
-        /*var errors = err
-        console.log("Mimsy ERROR: " + errors);*/
-        clbot.ask(lowercasemessage).then(response => {
-            console.log("Mimsy: " + response); // Will likely be: "Living in a uwu World" 
-            message.channel.send('<@273901841723686912>:' + response);
-        });
-
     }
     process.on("unhandledRejection", (reason, p) => {
-        console.error("Unhandled Rejection at: Promise", p, "reason:", reason);
+        //console.error("Unhandled Rejection at: Promise", p, "reason:", reason);
     });
     if (!message.content.startsWith(prefix)) { return 0; }
     var oldmessage = lowercasemessage;
