@@ -48,15 +48,29 @@ setInterval(function() {
     console.log('It\'s a new beautifull day!');
     loggedInList = []; //Start a new mimsy day every 12 hours 
 }, 43200000);
+/*TEMPLATE
+function doSomething(callback) {
+    // ...
+    // Call the callback
+    callback('stuff', 'goes', 'here');
+}
 
-/* DETECT IF I AM STREAMING, OUTPUT NOTIFICATION IF I AM + VIDEO LINK
-function getVIDEO_ID() {
+function foo(a, b, c) {
+    // I'm the callback
+    alert(a + " " + b + " " + c);
+}
+
+doSomething(foo);
+*/
+
+// DETECT IF I AM STREAMING, OUTPUT NOTIFICATION IF I AM + VIDEO LINK
+/*function getVIDEO_ID() {
     if (!error && response.statusCode == 200) {
         var jsonContent = JSON.parse(body);
         if ((jsonContent["items"][0]) != [""]) {
             VIDEO_TITLE = jsonContent["items"][0]["snippet"]["title"];
             VIDEO_ID = jsonContent["items"][0]["id"]["videoId"];
-            console.log("[DEBUG] Response said: VIDEO_TITLE: " + VIDEO_TITLE + " and VIDEO_ID: " + VIDEO_ID);
+            console.log("[DEBUG] getVIDEO_ID() Response said: VIDEO_TITLE: " + VIDEO_TITLE + " and VIDEO_ID: " + VIDEO_ID);
         } else {
             VIDEO_ID = "false";
             VIDEO_TITLE = "false";
@@ -66,7 +80,7 @@ function getVIDEO_ID() {
         console.log("[ERROR] " + response.statusCode);
     }
     console.log("RETURN3" + VIDEO_ID);
-};
+};*/
 
 function crawl(anotherCallback) {
     if (livestreamStatus == true) {
@@ -76,15 +90,18 @@ function crawl(anotherCallback) {
             timeout: 10000,
             followRedirect: true,
             maxRedirects: 10
-        };
+        }; //SENDS REQUEST TO GOOGLE API:Youtube API Video URL TO "GET" JSON
 
+        //CALLBACK FOR WHEN GOOGLE RESPONDS WITH JSON CONTAINING YOUTUBE INFO
         var callback = function(error, response, body) {
             if (!error && response.statusCode == 200) {
                 var jsonContent = JSON.parse(body);
                 if ((jsonContent["items"][0]) != [""]) {
                     VIDEO_TITLE = jsonContent["items"][0]["snippet"]["title"];
                     VIDEO_ID = jsonContent["items"][0]["id"]["videoId"];
-                    anotherCallback(VIDEO_ID, VIDEO_TITLE);
+                    //anotherCallback(VIDEO_ID, VIDEO_TITLE);
+                    console.log("[DEBUG] crawl(anotherCallback) Response said: VIDEO_TITLE: " + VIDEO_TITLE + " and VIDEO_ID: " + VIDEO_ID);
+                    //Successfully grabs the right VIDEO_TITLE and VIDEO_ID
                 } else {
                     VIDEO_ID = "false";
                     VIDEO_TITLE = "false";
@@ -96,6 +113,9 @@ function crawl(anotherCallback) {
         request(APIoptions, callback)
     }
 };
+//console.log("[DEBUG] crawl(anotherCallback) Response said: VIDEO_TITLE: " + VIDEO_TITLE + " and VIDEO_ID: " + VIDEO_ID);
+//Doesn't know what VIDEO_TITLE and VIDEO_ID are...
+
 crawl(function(id, title) {
     VIDEO_ID = id;
     VIDEO_TITLE = title;
@@ -113,10 +133,9 @@ crawl(function(id, title) {
     });
 });
 
-//setInterval(crawl, 500);
+//setInterval(crawl.bind(callback), 500);
 
 
-*/
 function isLoggedIn(text) {
     for (var i = 0; i < loggedInList.length; i++) {
         if (loggedInList[i] == text) { return true; }
