@@ -38,7 +38,6 @@ var prefix = "!- ";
 /* YOUTUBE */
 const YT_API_KEY = Login.getYT_API_KEY();
 const YT_Channel_ID = Login.getYT_Channel_ID();
-//https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=UCIPGEO89HvJBFQ01M56Yqcw&eventType=live&type=video&key=AIzaSyBOJ0kMFLGNzBXqeAqNQl2bmHlZKTj7Hi8
 const YTAPIVideoURL = ('https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=' + YT_Channel_ID + '&eventType=live&type=video&key=' + YT_API_KEY);
 const YTAPIStatusURL = ('https://www.googleapis.com/youtube/v3/liveBroadcasts?part=id%2Csnippet%2Cstatus&mine=true&broadcastStatus=active&key=' + YT_API_KEY);
 
