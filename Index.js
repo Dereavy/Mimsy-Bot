@@ -22,15 +22,15 @@ var VIDEO_TITLE = "";
 var loggedInList = []; //List of users that have logged in this mimsy day!
 var activeVoiceChannel = ""; //Voice Channel the bot is currently in, prevents a user from summoning the bot multiple times to the same channel.
 const bot = new Discord.Client();
-const Cbot = new cleverbot(Login.getCleverbotKey(), Login.getCleverbotUser(), "MimsyAI");
+const Cbot = new cleverbot({ key: Login.getCleverbotKey(), user: Login.getCleverbotUser(), nick: "MimsyAI" });
 
 /* CONFIGURATION */
-const messageLogChannelID = 415987090480955392;
-const mimsyTalkChannelID = 390243354211909632;
-const soundboardChannelID = 414497480928133120;
+var logChannelID = "415987090480955392";
+const mimsyTalkChannelID = "390243354211909632";
+const soundboardChannelID = "414497480928133120";
 const flowerRoleID = "404647452201844736";
 const bananaRoleID = "325737032972238850";
-const ownerID = 238825468864888833;
+const ownerID = "238825468864888833";
 var prefix = "!- ";
 
 /* YOUTUBE */
@@ -130,7 +130,7 @@ bot.on('ready', () => {
 /* Chat */
 bot.on('message', (message) => {
     if (message.author.bot) return;
-    var logChannel = bot.channels.get(messageLogChannelID);
+    var logChannel = bot.channels.get(logChannelID);
     var spacer = "";
     var d = new Date();
     var date = "`" + d.getDate() + "/" + d.getMonth() + "/" + d.getFullYear() + "-`_`" + d.getHours() + ":" + d.getMinutes() + ":" + d.getSeconds() + "`_";
