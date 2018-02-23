@@ -17,6 +17,7 @@ const commentsStream = require('youtube-comments-stream');
 
 /* INITIALISATION */
 var livestreamStatus = true;
+var announcedStream = false;
 var VIDEO_ID = "";
 var VIDEO_TITLE = "";
 var loggedInList = []; //List of users that have logged in this mimsy day!
@@ -81,41 +82,50 @@ doSomething(foo);
     }
     console.log("RETURN3" + VIDEO_ID);
 };*/
+function getVideoDetails(id, title) {
+    if ((livestreamStatus == true) && (announcedStream == false)) {
+        VIDEO_TITLE = title;
+        VIDEO_ID = id;
+        //console.log("[DEBUG] getVideoDetails Response said: VIDEO_TITLE: " + VIDEO_TITLE + " and VIDEO_ID: " + VIDEO_ID)
+    }
+}
 
 function crawl(anotherCallback) {
-    if (livestreamStatus == true) {
-        var APIoptions = {
-            url: YTAPIVideoURL,
-            method: "GET",
-            timeout: 10000,
-            followRedirect: true,
-            maxRedirects: 10
-        }; //SENDS REQUEST TO GOOGLE API:Youtube API Video URL TO "GET" JSON
 
-        //CALLBACK FOR WHEN GOOGLE RESPONDS WITH JSON CONTAINING YOUTUBE INFO
-        var callback = function(error, response, body) {
-            if (!error && response.statusCode == 200) {
-                var jsonContent = JSON.parse(body);
-                if ((jsonContent["items"][0]) != [""]) {
-                    VIDEO_TITLE = jsonContent["items"][0]["snippet"]["title"];
-                    VIDEO_ID = jsonContent["items"][0]["id"]["videoId"];
-                    //anotherCallback(VIDEO_ID, VIDEO_TITLE);
-                    console.log("[DEBUG] crawl(anotherCallback) Response said: VIDEO_TITLE: " + VIDEO_TITLE + " and VIDEO_ID: " + VIDEO_ID);
-                    //Successfully grabs the right VIDEO_TITLE and VIDEO_ID
-                } else {
-                    VIDEO_ID = "false";
-                    VIDEO_TITLE = "false";
-                }
+    //SENDS REQUEST TO GOOGLE API:Youtube API Video URL TO "GET" JSON
+    var APIoptions = {
+        url: YTAPIVideoURL,
+        method: "GET",
+        timeout: 10000,
+        followRedirect: true,
+        maxRedirects: 10
+    };
+
+    //CALLBACK FOR WHEN GOOGLE RESPONDS WITH JSON CONTAINING YOUTUBE INFO
+    var callback = function(error, response, body) {
+        if (!error && response.statusCode == 200) {
+            var jsonContent = JSON.parse(body);
+            if ((jsonContent["items"][0]) != [""]) {
+                VIDEO_TITLE = jsonContent["items"][0]["snippet"]["title"];
+                VIDEO_ID = jsonContent["items"][0]["id"]["videoId"];
+                //Successfully grabs the right VIDEO_TITLE and VIDEO_ID
+                getVideoDetails(VIDEO_ID, VIDEO_TITLE)
             } else {
-                console.log("[ERROR] " + response.statusCode);
+                VIDEO_ID = "false";
+                VIDEO_TITLE = "false";
             }
-        };
-        request(APIoptions, callback)
-    }
+        } else {
+            console.log("[ERROR] " + response.statusCode);
+        }
+    };
+    //REQUEST 
+    request(APIoptions, callback)
 };
+
+setInterval(crawl, 5000);
 //console.log("[DEBUG] crawl(anotherCallback) Response said: VIDEO_TITLE: " + VIDEO_TITLE + " and VIDEO_ID: " + VIDEO_ID);
 //Doesn't know what VIDEO_TITLE and VIDEO_ID are...
-
+/*
 crawl(function(id, title) {
     VIDEO_ID = id;
     VIDEO_TITLE = title;
@@ -131,9 +141,8 @@ crawl(function(id, title) {
         console.log('NO MORE COMMENTS');
         process.exit();
     });
-});
+});*/
 
-//setInterval(crawl.bind(callback), 500);
 
 
 function isLoggedIn(text) {
