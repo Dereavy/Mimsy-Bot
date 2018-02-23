@@ -10,7 +10,7 @@ const music = require('discord.js-music-v11');
 const Discord = require("discord.js");
 const Animals = require("./chatanimals.js");
 const Rules = require("./rules.js");
-const Login = require('./botToken.js')
+const Login = require('./botToken.js'); //Not included in the git file, see wiki for details.
 const AIntelli = require('ai-chatbot');
 var cleverbot = require("better-cleverbot-io");
 const commentsStream = require('youtube-comments-stream');
@@ -119,9 +119,7 @@ crawl(function(id, title) {
 */
 function isLoggedIn(text) {
     for (var i = 0; i < loggedInList.length; i++) {
-        if (loggedInList[i] == text) {
-            return true;
-        }
+        if (loggedInList[i] == text) { return true; }
     }
     return false;
 }
@@ -370,13 +368,12 @@ bot.on('message', (message) => {
 
     //Sponge Meme
     if (command == "sm") {
-        console.log(lowercasemessage);
+        message.delete(1000).catch(O_o => {}); //Supposed to delete message
         message.channel.send(Actions.spongeMemify(lowercasemessage));
     }
 
     //I have no idea what this does anymore
     if (command == "ban") {
-        console.log(lowercasemessage);
         message.channel.send(Actions.banMessageUser(lowercasemessage));
     }
     //tests
