@@ -28,8 +28,10 @@ const Cbot = new cleverbot({ key: Login.getCleverbotKey(), user: Login.getClever
 var logChannelID = "415987090480955392";
 const mimsyTalkChannelID = "390243354211909632";
 const soundboardChannelID = "414497480928133120";
+const testChannelID = "378315211607769089";
 const flowerRoleID = "404647452201844736";
 const bananaRoleID = "325737032972238850";
+const noTagRoleID = "410461710332329985";
 const ownerID = "238825468864888833";
 var prefix = "!- ";
 
@@ -134,6 +136,7 @@ bot.on('message', (message) => {
     var spacer = "";
     var d = new Date();
     var date = "`" + d.getDate() + "/" + d.getMonth() + "/" + d.getFullYear() + "-`_`" + d.getHours() + ":" + d.getMinutes() + ":" + d.getSeconds() + "`_";
+
     //Private Messages
     if (message.channel.type == "dm") {
 
@@ -169,11 +172,8 @@ bot.on('message', (message) => {
         }
     }
 
-    //\uD83D\uDE08
-    //Greetings
-
+    //Daily Greetings
     function hasRank() { hasNoRank = false; }
-
     if (isLoggedIn(message.author.id) == false) {
         loggedInList.push(message.author.id);
         var hasNoRank = true;
@@ -190,15 +190,7 @@ bot.on('message', (message) => {
         }
     }
 
-    //Flower Role reaction
-    //244643111580598292 :gainfullterrorsuspicious:326260376339611649
-    /* List emojis
-    if (message.content === "listemojis") {
-        const emojiList = message.guild.emojis.map(e => e.toString()).join(" ");
-        message.channel.send(emojiList);
-    }
-    */
-
+    // Cleverbot Integration
     var lowercaseMessage = message.content.toLowerCase();
     if (Actions.mimsyVerify(lowercaseMessage) == true) {
         if (message.channel.id == mimsyTalkChannelID) {
@@ -207,44 +199,28 @@ bot.on('message', (message) => {
                     message.channel.send(response); // Will likely be: "Living in a lonely world"
                 });
             });
-            const clbot = new cleverbot({ user: Login.getCleverbotUser(), key: Login.getCleverbotKey(), nick: message.author.id });
-            clbot.create().then(() => {}).catch(err => {
-                console.log("[ERROR] " + err);
-            });
-            /*var errors = err
-            console.log("Mimsy ERROR: " + errors);*/
-            clbot.ask(lowercasemessage).then(response => {
-                console.log("Mimsy: " + response); // Will likely be: "Living in a uwu World" 
-                message.channel.send(response);
-            });
         }
     }
-    //Test channel:378315211607769089
-    //do stuff
+
+    //Remove Youtube links from unwanted channels
     if (Actions.containsYoutube(lowercaseMessage) == true) {
         if (Actions.allowedYoutube(message.channel.id) == false) {
             message.delete(1000).catch(O_o => {}); //Supposed to delete message
             message.author.sendMessage("I see you tried to post a video in the wrong section.\nPlease only post youtube links in the #media section of Lezappen's discord here:\n\n https://discord.gg/ZDHUfWH")
         }
     }
-    /*
-    if (!(message.member.roles.has("410461710332329985"))) {
-        if (message.author.id == 285762732823805954) {
-            message.delete(1000).catch(O_o => {}); //Supposed to delete message
-            message.author.sendMessage('Hello Peanut, you cannot talk here until Lezappen says you can!');
-        }
-    }
-    */
+    //Stop players with the no tag role from tagging Lezappen.
     if (Actions.containsLezTag(lowercaseMessage)) {
-        if (message.member.roles.has("410461710332329985")) {
+        if (message.member.roles.has(noTagRoleID)) {
             message.delete(1000).catch(O_o => {}); //Supposed to delete message
             message.author.sendMessage("I see you tried to tag Lezappen? How about no?")
         }
     }
+    //Random Mimsy reaction
     if (Actions.shouldReact(message.channel.id, lowercaseMessage) == true) {
         message.channel.send(Actions.makeMimsyReact(lowercaseMessage, message.author));
     }
-    // NO PREFIX 
+    // NO PREFIX COMMANDS
     if (lowercaseMessage == ('ping')) {
         message.channel.send(Actions.pong()); // "<@273901841723686912>" + message.author 
     }
@@ -283,7 +259,6 @@ bot.on('message', (message) => {
         message.channel.send(Actions.iAmNotABot());
     }
 
-    //add_reaction(message, emoji)
     //WITH PREFIX
     const args = message.content.slice(prefix.length).trim().split(/ +/g);
     const precommand = args[0];
@@ -302,7 +277,7 @@ bot.on('message', (message) => {
         });
     }
 
-
+    // Build random fact
     if (command == "fact") {
         message.channel.send(Actions.randomInsult(message.author));
     }
@@ -369,8 +344,8 @@ bot.on('message', (message) => {
             }
         }
     }
-    //Piano 
-    /*
+
+    /* //Piano [DEPRECATED]
     if (message.channel.id == 414750345110224896) {
         if (command == "piano") {
             if (lowercasemessage == "help") {
@@ -382,7 +357,7 @@ bot.on('message', (message) => {
                     console.log(lowercasemessage[i] + "//" + Soundboard.playNote(lowercasemessage[i]) + "//" + file);
                     channel.join()
                         .then(connection => {
-                            var dispatcher = connection.playFile(file);
+                            var dispatcher = connection.playFile(file); //*HERE* CANNOT PLAY MULTIPLE NOTES FOR SOME REASON
                             dispatcher.on("end", end => {});
                         })
                         .catch(console.error);
@@ -393,15 +368,19 @@ bot.on('message', (message) => {
         }
     } 
     */
+
     //Sponge Meme
     if (command == "sm") {
         console.log(lowercasemessage);
         message.channel.send(Actions.spongeMemify(lowercasemessage));
     }
+
+    //I have no idea what this does anymore
     if (command == "ban") {
         console.log(lowercasemessage);
         message.channel.send(Actions.banMessageUser(lowercasemessage));
     }
+    //tests
     if (command == "filter") {
         message.channel.send(Actions.filter(lowercasemessage));
     }
@@ -411,10 +390,14 @@ bot.on('message', (message) => {
     if (command == "filterd") {
         message.channel.send(Actions.decodeUTF(lowercasemessage));
     }
+
+    // Get Mimsy to send you a video
     if (command == "video") {
         message.delete(1000).catch(O_o => {}); //Supposed to delete message
         message.author.sendMessage('Hello, you asked me to send you this random video:\n' + Actions.randomVideoURL());
     }
+
+    // Tips
     if (command == "tips") {
         message.channel.send({
             embed: {
@@ -423,6 +406,8 @@ bot.on('message', (message) => {
             }
         });
     }
+
+    // Dog
     if (command == "dog") {
         message.channel.send({
             embed: {
@@ -431,6 +416,8 @@ bot.on('message', (message) => {
             }
         });
     }
+
+    // Giraffe with emoji on top
     if (command == "giraffe") {
         message.channel.send({
             embed: {
@@ -442,7 +429,6 @@ bot.on('message', (message) => {
 
     // session is your session name, it will either be as you set it previously, or cleverbot.io will generate one for you
     // Woo, you initialized cleverbot.io.  Insert further code here
-    //console.log(message.author.username + ": " + lowercasemessage);
     if (command == "ai") {
         Cbot.create(function(err, MimsyAI) {
             Cbot.ask(lowercasemessage, function(err, response) {
@@ -456,6 +442,8 @@ bot.on('message', (message) => {
     if (!message.content.startsWith(prefix)) { return 0; }
     var oldmessage = lowercasemessage;
 });
+
+//no idea, for future use maybe.
 music(bot, {
     prefix: '!m ', // Prefix of '-'.
     global: false, // Server-specific queues.
