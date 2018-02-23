@@ -21,7 +21,9 @@ var sounds = [
     "20-FailHorn.mp3",
     "21-SadTrombone.mp3",
     "22-Tada.mp3",
-    "23-WhatchaSay.mp3"
+    "23-WhatchaSay.mp3",
+    "24-SlowClap.wav",
+    "25-cheer.mp3"
 ];
 var notes = {
     "c1": "q",
@@ -74,6 +76,8 @@ module.exports = {
         message += " |  21- Fail Trombone                 |\n";
         message += " |  22- Tada!                         |\n";
         message += " |  23- Whatcha Say                   |\n";
+        message += " |  24- Slow Clap                     |\n";
+        message += " |  25- Cheer                         |\n";
         message += "```";
         return message;
     },
