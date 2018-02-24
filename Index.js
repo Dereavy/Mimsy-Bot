@@ -36,7 +36,7 @@ const bananaRoleID = "325737032972238850";
 const noTagRoleID = "410461710332329985";
 const ownerID = "238825468864888833";
 const updateInterval = 10000; //Milliseconds between Youtube API requests.
-var prefix = "!- ";
+var prefix = "!! ";
 
 /* YOUTUBE */
 const YT_API_KEY = Login.getYT_API_KEY();
@@ -79,7 +79,7 @@ function crawl(anotherCallback) {
                 streamStatus(false);
             }
         } else {
-            console.log("[ERROR] " + response.statusCode);
+            //if (typeof response == "undefined") {}
         }
     };
     //REQUEST CALLBACK
@@ -279,7 +279,12 @@ bot.on('message', (message) => {
             }
         });
     }
-
+    //Invalid command
+    if ((precommand.trim() != prefix.trim()) || command == "invalid") {
+        command = "invalid";
+        message.delete(1000).catch(O_o => {}); //Supposed to delete message
+        message.author.sendMessage("The proper prefix used for commands is:` " + prefix + " `")
+    }
     // Build random fact
     if (command == "fact") {
         message.channel.send(Actions.randomInsult(message.author));
