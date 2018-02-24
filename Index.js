@@ -35,6 +35,7 @@ const flowerRoleID = "404647452201844736";
 const bananaRoleID = "325737032972238850";
 const noTagRoleID = "410461710332329985";
 const ownerID = "238825468864888833";
+const updateInterval = 10000; //Milliseconds between Youtube API requests.
 var prefix = "!- ";
 
 /* YOUTUBE */
@@ -50,40 +51,8 @@ setInterval(function() {
     console.log('It\'s a new beautifull day!');
     loggedInList = []; //Start a new mimsy day every 12 hours 
 }, 43200000);
-/*TEMPLATE
-function doSomething(callback) {
-    // ...
-    // Call the callback
-    callback('stuff', 'goes', 'here');
-}
 
-function foo(a, b, c) {
-    // I'm the callback
-    alert(a + " " + b + " " + c);
-}
-
-doSomething(foo);
-*/
-
-// DETECT IF I AM STREAMING, OUTPUT NOTIFICATION IF I AM + VIDEO LINK
-/*function getVIDEO_ID() {
-    if (!error && response.statusCode == 200) {
-        var jsonContent = JSON.parse(body);
-        if ((jsonContent["items"][0]) != [""]) {
-            VIDEO_TITLE = jsonContent["items"][0]["snippet"]["title"];
-            VIDEO_ID = jsonContent["items"][0]["id"]["videoId"];
-            console.log("[DEBUG] getVIDEO_ID() Response said: VIDEO_TITLE: " + VIDEO_TITLE + " and VIDEO_ID: " + VIDEO_ID);
-        } else {
-            VIDEO_ID = "false";
-            VIDEO_TITLE = "false";
-        }
-        console.log("RETURN4" + VIDEO_ID);
-    } else {
-        console.log("[ERROR] " + response.statusCode);
-    }
-    console.log("RETURN3" + VIDEO_ID);
-};*/
-
+// GETS YOUTUBE INFO EVERY "updateInterval" Milliseconds
 function crawl(anotherCallback) {
 
     //SENDS REQUEST TO GOOGLE API:Youtube API Video URL TO "GET" JSON
@@ -120,8 +89,6 @@ function crawl(anotherCallback) {
 function getVideoDetails(id, title) {
     VIDEO_TITLE = title;
     VIDEO_ID = id;
-    //console.log("[DEBUG] getVideoDetails Response said: VIDEO_TITLE: " + VIDEO_TITLE + " and VIDEO_ID: " + VIDEO_ID)
-    //Function to notify users about my stream goes here.
     streamStatus(true);
 }
 
@@ -129,10 +96,11 @@ function streamStatus(bool) {
     if (livestreamStatus != bool) {
         livestreamStatus = bool;
         if (livestreamStatus == false) { bot.channels.get(YouTubeChannelID).send("Live stream has gone offline!"); }
-        if (livestreamStatus == true) { bot.channels.get(YouTubeChannelID).send("Live stream is now online here: https://www.youtube.com/watch?v=" + VIDEO_ID); }
+        if (livestreamStatus == true) { bot.channels.get(YouTubeChannelID).send("Live stream is now online @here: https://www.youtube.com/watch?v=" + VIDEO_ID); }
     }
 }
-setInterval(crawl, 5000);
+setInterval(crawl, updateInterval);
+
 //console.log("[DEBUG] crawl(anotherCallback) Response said: VIDEO_TITLE: " + VIDEO_TITLE + " and VIDEO_ID: " + VIDEO_ID);
 //Doesn't know what VIDEO_TITLE and VIDEO_ID are...
 /*
