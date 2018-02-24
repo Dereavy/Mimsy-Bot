@@ -16,7 +16,7 @@ var cleverbot = require("better-cleverbot-io");
 const commentsStream = require('youtube-comments-stream');
 
 /* INITIALISATION */
-var livestreamStatus = true;
+var livestreamStatus = false;
 var announcedStream = false;
 var VIDEO_ID = "";
 var VIDEO_TITLE = "";
@@ -30,6 +30,7 @@ var logChannelID = "415987090480955392";
 const mimsyTalkChannelID = "390243354211909632";
 const soundboardChannelID = "414497480928133120";
 const testChannelID = "378315211607769089";
+const YouTubeChannelID = "416757328528932875";
 const flowerRoleID = "404647452201844736";
 const bananaRoleID = "325737032972238850";
 const noTagRoleID = "410461710332329985";
@@ -82,13 +83,6 @@ doSomething(foo);
     }
     console.log("RETURN3" + VIDEO_ID);
 };*/
-function getVideoDetails(id, title) {
-    if ((livestreamStatus == true) && (announcedStream == false)) {
-        VIDEO_TITLE = title;
-        VIDEO_ID = id;
-        //console.log("[DEBUG] getVideoDetails Response said: VIDEO_TITLE: " + VIDEO_TITLE + " and VIDEO_ID: " + VIDEO_ID)
-    }
-}
 
 function crawl(anotherCallback) {
 
@@ -105,23 +99,39 @@ function crawl(anotherCallback) {
     var callback = function(error, response, body) {
         if (!error && response.statusCode == 200) {
             var jsonContent = JSON.parse(body);
-            if ((jsonContent["items"][0]) != [""]) {
+            if ((jsonContent["pageInfo"]["totalResults"]) != 0) {
                 VIDEO_TITLE = jsonContent["items"][0]["snippet"]["title"];
                 VIDEO_ID = jsonContent["items"][0]["id"]["videoId"];
                 //Successfully grabs the right VIDEO_TITLE and VIDEO_ID
-                getVideoDetails(VIDEO_ID, VIDEO_TITLE)
+                getVideoDetails(VIDEO_ID, VIDEO_TITLE);
             } else {
-                VIDEO_ID = "false";
-                VIDEO_TITLE = "false";
+                VIDEO_ID = "";
+                VIDEO_TITLE = "";
+                streamStatus(false);
             }
         } else {
             console.log("[ERROR] " + response.statusCode);
         }
     };
-    //REQUEST 
+    //REQUEST CALLBACK
     request(APIoptions, callback)
 };
 
+function getVideoDetails(id, title) {
+    VIDEO_TITLE = title;
+    VIDEO_ID = id;
+    //console.log("[DEBUG] getVideoDetails Response said: VIDEO_TITLE: " + VIDEO_TITLE + " and VIDEO_ID: " + VIDEO_ID)
+    //Function to notify users about my stream goes here.
+    streamStatus(true);
+}
+
+function streamStatus(bool) {
+    if (livestreamStatus != bool) {
+        livestreamStatus = bool;
+        if (livestreamStatus == false) { bot.channels.get(YouTubeChannelID).send("Live stream has gone offline!"); }
+        if (livestreamStatus == true) { bot.channels.get(YouTubeChannelID).send("Live stream is now online here: https://www.youtube.com/watch?v=" + VIDEO_ID); }
+    }
+}
 setInterval(crawl, 5000);
 //console.log("[DEBUG] crawl(anotherCallback) Response said: VIDEO_TITLE: " + VIDEO_TITLE + " and VIDEO_ID: " + VIDEO_ID);
 //Doesn't know what VIDEO_TITLE and VIDEO_ID are...
