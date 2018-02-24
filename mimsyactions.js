@@ -288,5 +288,21 @@ module.exports = {
     },
     randomInsult: function(input) {
         return randomInsult(input);
+    },
+    getRandomHEXColor: function() {
+        var letters = '0123456789ABCDEF';
+        var color = '#';
+        for (var i = 0; i < 6; i++) {
+            color += letters[Math.floor(Math.random() * letters.length)];
+        }
+        return color;
+    },
+    getRandomColor: function() {
+        var letters = '0123456789';
+        var color = '';
+        for (var i = 0; i < 6; i++) {
+            color += letters[Math.floor(Math.random() * letters.length)];
+        }
+        return color;
     }
 }
