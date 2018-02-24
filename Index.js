@@ -36,7 +36,7 @@ const bananaRoleID = "325737032972238850";
 const noTagRoleID = "410461710332329985";
 const ownerID = "238825468864888833";
 const updateInterval = 10000; //Milliseconds between Youtube API requests.
-var prefix = "!! ";
+var prefix = "!!";
 
 /* YOUTUBE */
 const YT_API_KEY = Login.getYT_API_KEY();
@@ -96,7 +96,24 @@ function streamStatus(bool) {
     if (livestreamStatus != bool) {
         livestreamStatus = bool;
         if (livestreamStatus == false) { bot.channels.get(YouTubeChannelID).send("Live stream has gone offline!"); }
-        if (livestreamStatus == true) { bot.channels.get(YouTubeChannelID).send("Live stream is now online @here: https://www.youtube.com/watch?v=" + VIDEO_ID); }
+        if (livestreamStatus == true) {
+            bot.channels.get(YouTubeChannelID).send({
+                embed: {
+                    color: Number(Actions.getRandomColor()),
+                    title: "**Live stream is now online!**",
+                    description: "Join the stream ;)",
+                    fields: [{
+                        name: "Video: **" + VIDEO_TITLE + "**",
+                        value: "https://www.youtube.com/watch?v=" + VIDEO_ID
+                    }],
+                    timestamp: new Date(),
+                    footer: {
+                        icon_url: bot.user.avatarURL,
+                        text: "Mimsy"
+                    }
+                }
+            });
+        }
     }
 }
 setInterval(crawl, updateInterval);
@@ -263,14 +280,17 @@ bot.on('message', (message) => {
     }
 
     //WITH PREFIX
-    const args = message.content.slice(prefix.length).trim().split(/ +/g);
-    const precommand = args[0];
-    const command = args.shift().toLowerCase();
-    var lowercasemessage = "";
-    for (var i = 0; i < args.length; i++) {
-        lowercasemessage += args[i] + " ";
-    }
-    lowercasemessage = lowercasemessage.trim();
+    const prefixCheck = message.content.trim().split(/ +/g)[0];
+    if (prefix == prefixCheck) {
+        const args = message.content.slice(prefix.length).trim().split(/ +/g);
+        const precommand = args[0];
+        var command = args.shift().toLowerCase();
+        var lowercasemessage = "";
+        for (var i = 0; i < args.length; i++) {
+            lowercasemessage += args[i] + " ";
+            lowercasemessage = lowercasemessage.trim();
+        }
+    } else { var command = "unknown" }
     if (command == "rules") {
         message.channel.send({
             embed: {
@@ -280,11 +300,6 @@ bot.on('message', (message) => {
         });
     }
     //Invalid command
-    if ((precommand.trim() != prefix.trim()) || command == "invalid") {
-        command = "invalid";
-        message.delete(1000).catch(O_o => {}); //Supposed to delete message
-        message.author.sendMessage("The proper prefix used for commands is:` " + prefix + " `")
-    }
     // Build random fact
     if (command == "fact") {
         message.channel.send(Actions.randomInsult(message.author));
@@ -401,7 +416,11 @@ bot.on('message', (message) => {
     // Get Mimsy to send you a video
     if (command == "video") {
         message.delete(1000).catch(O_o => {}); //Supposed to delete message
-        message.author.sendMessage('Hello, you asked me to send you this random video:\n' + Actions.randomVideoURL());
+        message.author.send('Hello, you asked me to send you this random video:\n' + Actions.randomVideoURL());
+    }
+
+    if ((command == "test") && (message.channel.id == testChannelID)) {
+        //Function to be tested
     }
 
     // Tips
@@ -435,7 +454,7 @@ bot.on('message', (message) => {
     }
 
     // session is your session name, it will either be as you set it previously, or cleverbot.io will generate one for you
-    // Woo, you initialized cleverbot.io.  Insert further code here
+    // Woo, you initialized cleverbot.io.  Insert further code here.
     if (command == "ai") {
         Cbot.create(function(err, MimsyAI) {
             Cbot.ask(lowercasemessage, function(err, response) {
