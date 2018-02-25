@@ -17,7 +17,6 @@ const commentsStream = require('youtube-comments-stream');
 
 /* INITIALISATION */
 var livestreamStatus = false;
-var announcedStream = false;
 var VIDEO_ID = "";
 var VIDEO_TITLE = "";
 var loggedInList = []; //List of users that have logged in this mimsy day!
@@ -142,35 +141,41 @@ bot.on('message', (message) => {
     var d = new Date();
     var date = "`" + d.getDate() + "/" + d.getMonth() + "/" + d.getFullYear() + "-`_`" + d.getHours() + ":" + d.getMinutes() + ":" + d.getSeconds() + "`_";
 
-    //Private Messages
+    //PRIVATE MESSAGES
     if (message.channel.type == "dm") {
 
         for (var i = 20; i > message.author.username.length; i--) {
             spacer += " .";
         }
-        var loggedMessage = "" + date + " " + "**[PM]** " + spacer + " " + message.author.username + ": =>  **\"** _" + message.content + "_ **\"**";
+        var loggedMessage = "" + date + " " + "**[PM]** " + spacer + " " + message.author.username + ": =>  **\"** _`" + message.content + "`_ **\"**";
         logChannel.send(loggedMessage);
         return;
     }
+
+    // AUTOMATIC ACTIONS
     for (var i = 18; i > message.channel.name.length; i--) {
         spacer += " .";
     }
-    var loggedMessage = "" + date + " " + "**[" + message.channel.name + "]** " + spacer + " " + message.author.username + ': =>  **"** _' + message.content + '_ **"**';
+    var loggedMessage = "" + date + " " + "**[" + message.channel.name + "]** " + spacer + " " + message.author.username + ': =>  **"** _`' + message.content + '`_ **"**';
     logChannel.send(loggedMessage);
 
     if (message.content.length > 30) {
+
         //Pasta's reaction
         if (message.author.id == 265440082457001984) {
             message.react(":spaghet: 402526491935768576");
         }
+
         //Keanu's reaction
         if (message.author.id == 285762732823805954) {
             message.react("\uD83E\uDD5C");
         }
+
         //Gainy's reaction
         if (message.author.id == 244643111580598292) {
             message.react(":gainfullterrorsuspicious: 326260376339611649");
         }
+
         //Shamel's reaction
         if (message.author.id == 273901841723686912) {
             message.react(":trollshamel: 377086697004990474");
@@ -214,6 +219,7 @@ bot.on('message', (message) => {
             message.author.sendMessage("I see you tried to post a video in the wrong section.\nPlease only post youtube links in the #media section of Lezappen's discord here:\n\n https://discord.gg/ZDHUfWH")
         }
     }
+
     //Stop players with the no tag role from tagging Lezappen.
     if (Actions.containsLezTag(lowercaseMessage)) {
         if (message.member.roles.has(noTagRoleID)) {
@@ -221,10 +227,12 @@ bot.on('message', (message) => {
             message.author.sendMessage("I see you tried to tag Lezappen? How about no?")
         }
     }
+
     //Random Mimsy reaction
     if (Actions.shouldReact(message.channel.id, lowercaseMessage) == true) {
         message.channel.send(Actions.makeMimsyReact(lowercaseMessage, message.author));
     }
+
     // NO PREFIX COMMANDS
     if (lowercaseMessage == ('ping')) {
         message.channel.send(Actions.pong()); // "<@273901841723686912>" + message.author 
@@ -264,7 +272,7 @@ bot.on('message', (message) => {
         message.channel.send(Actions.iAmNotABot());
     }
 
-    //WITH PREFIX
+    //COMMANDS WITH PREFIX
     const prefixCheck = message.content.trim().split(/ +/g)[0];
     if (prefix == prefixCheck) {
         const args = message.content.slice(prefix.length).trim().split(/ +/g);
@@ -476,5 +484,6 @@ music(bot, {
 //music(bot, options);
 /* TO DO LIST */
 /*
-- !- Poll
+- Hangman
+- Poll
 */
