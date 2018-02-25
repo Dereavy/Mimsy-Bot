@@ -97,18 +97,7 @@ function streamStatus(bool) {
         livestreamStatus = bool;
         if (livestreamStatus == false) { bot.channels.get(YouTubeChannelID).send("Live stream has gone offline!"); }
         if (livestreamStatus == true) {
-            bot.channels.get(YouTubeChannelID).send({
-                embed: {
-                    color: Number(Actions.getRandomColor()),
-                    title: "**Live stream is now online!**",
-                    description: "Join the stream ;)\nVideo: **" + VIDEO_TITLE + "**\nhttps://www.youtube.com/watch?v=" + VIDEO_ID,
-                    timestamp: new Date(),
-                    footer: {
-                        icon_url: bot.user.avatarURL,
-                        text: "Mimsy"
-                    }
-                }
-            });
+            bot.channels.get(YouTubeChannelID).send(" **Live stream is now online!**\nJoin the stream ;)\nVideo: **" + VIDEO_TITLE + "**\nhttps://www.youtube.com/watch?v=" + VIDEO_ID);
         }
     }
 }
