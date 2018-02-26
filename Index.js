@@ -256,6 +256,26 @@ bot.on('message', (message) => {
     if (Actions.areYouBot(lowercaseMessage) == "true") {
         message.channel.send(Actions.iAmNotABot());
     }
+    // Get User Info
+    sql.get(`SELECT * FROM users WHERE userId = "${message.author.id}"`).then(row => {
+        if (!row) { // Can't find the row.
+            sql.run("INSERT INTO users (userId, points, level) VALUES (?, ?, ?)", [message.author.id, 1, 0]);
+        } else { // Can find the row.
+            let curLevel = Math.floor(0.1 * Math.sqrt(row.points + 1));
+            if (curLevel > row.level) {
+                row.level = curLevel;
+                sql.run(`UPDATE users SET points = ${row.points + 1}, level = ${row.level} WHERE userId = ${message.author.id}`);
+                message.reply(`You've leveled up to level **${curLevel}**! Ain't that dandy?`);
+            }
+            sql.run(`UPDATE users SET points = ${row.points + 1} WHERE userId = ${message.author.id}`);
+        }
+    }).catch(() => { //If user doesn't exist create a new table in his honor!
+        console.error; // Gotta log those errors
+        sql.run("CREATE TABLE IF NOT EXISTS users (userId TEXT, points INTEGER, level INTEGER)").then(() => {
+            sql.run("INSERT INTO users (userId, points, level) VALUES (?, ?, ?)", [message.author.id, 1, 0]);
+        });
+    });
+
 
     //COMMANDS WITH PREFIX
     const prefixCheck = message.content.trim().split(/ +/g)[0];
@@ -399,26 +419,7 @@ bot.on('message', (message) => {
 
     if ((command == "test") && (message.channel.id == testChannelID)) {
         //Function to be tested
-        message.channel.send(Hangman.test());
-        // Get User Info
-        sql.get(`SELECT * FROM users WHERE userId = "${message.author.id}"`).then(row => {
-            if (!row) { // Can't find the row.
-                sql.run("INSERT INTO users (userId, points, level) VALUES (?, ?, ?)", [message.author.id, 1, 0]);
-            } else { // Can find the row.
-                let curLevel = Math.floor(0.1 * Math.sqrt(row.points + 1));
-                if (curLevel > row.level) {
-                    row.level = curLevel;
-                    sql.run(`UPDATE users SET points = ${row.points + 1}, level = ${row.level} WHERE userId = ${message.author.id}`);
-                    message.reply(`You've leveled up to level **${curLevel}**! Ain't that dandy?`);
-                }
-                sql.run(`UPDATE users SET points = ${row.points + 1} WHERE userId = ${message.author.id}`);
-            }
-        }).catch(() => { //If user doesn't exist create a new table in his honor!
-            console.error; // Gotta log those errors
-            sql.run("CREATE TABLE IF NOT EXISTS users (userId TEXT, points INTEGER, level INTEGER)").then(() => {
-                sql.run("INSERT INTO users (userId, points, level) VALUES (?, ?, ?)", [message.author.id, 1, 0]);
-            });
-        });
+        message.channel.send(Hangman.getMessage("Answering Machine", lowercasemessage, "easy"));
     }
 
     if (command == "level") {
