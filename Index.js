@@ -12,10 +12,14 @@ const Animals = require("./chatanimals.js");
 const Rules = require("./rules.js");
 const Login = require('./botToken.js'); //Not included in the git file, see wiki for details.
 const AIntelli = require('ai-chatbot');
+const Hangman = require("./Hangman.js");
 var cleverbot = require("better-cleverbot-io");
+const sql = require("sqlite");
 const commentsStream = require('youtube-comments-stream');
 
+
 /* INITIALISATION */
+sql.open("./users.sqlite");
 var livestreamStatus = false;
 var VIDEO_ID = "";
 var VIDEO_TITLE = "";
@@ -102,27 +106,6 @@ function streamStatus(bool) {
 }
 setInterval(crawl, updateInterval);
 
-//console.log("[DEBUG] crawl(anotherCallback) Response said: VIDEO_TITLE: " + VIDEO_TITLE + " and VIDEO_ID: " + VIDEO_ID);
-//Doesn't know what VIDEO_TITLE and VIDEO_ID are...
-/*
-crawl(function(id, title) {
-    VIDEO_ID = id;
-    VIDEO_TITLE = title;
-    console.log("[DEBUG] Crawl Response said: VIDEO_TITLE: ==" + VIDEO_TITLE + "== and VIDEO_ID: ==" + VIDEO_ID + "==");
-    const stream = commentsStream(VIDEO_ID);
-    stream.on('data', function(comment) {
-        console.log(comment.text);
-    });
-    stream.on('error', function(err) {
-        console.error('ERROR READING COMMENTS:', err);
-    });
-    stream.on('end', function() {
-        console.log('NO MORE COMMENTS');
-        process.exit();
-    });
-});*/
-
-
 
 function isLoggedIn(text) {
     for (var i = 0; i < loggedInList.length; i++) {
@@ -141,14 +124,16 @@ bot.on('message', (message) => {
     var d = new Date();
     var date = "`" + d.getDate() + "/" + d.getMonth() + "/" + d.getFullYear() + "-`_`" + d.getHours() + ":" + d.getMinutes() + ":" + d.getSeconds() + "`_";
 
+
     //PRIVATE MESSAGES
     if (message.channel.type == "dm") {
 
         for (var i = 20; i > message.author.username.length; i--) {
             spacer += " .";
         }
-        var loggedMessage = "" + date + " " + "**[PM]** " + spacer + " " + message.author.username + ": =>  **\"** _`" + message.content + "`_ **\"**";
+        var loggedMessage = "" + date + " " + "**[PM]** " + spacer + " " + message.author.username + "#" + message.author.discriminator + ": _`" + message.content + "`_";
         logChannel.send(loggedMessage);
+
         return;
     }
 
@@ -156,7 +141,7 @@ bot.on('message', (message) => {
     for (var i = 18; i > message.channel.name.length; i--) {
         spacer += " .";
     }
-    var loggedMessage = "" + date + " " + "**[" + message.channel.name + "]** " + spacer + " " + message.author.username + ': =>  **"** _`' + message.content + '`_ **"**';
+    var loggedMessage = "" + date + " " + "**[" + message.channel.name + "]** " + spacer + " " + message.author.username + "#" + message.author.discriminator + ': _`' + message.content + '`_';
     logChannel.send(loggedMessage);
 
     if (message.content.length > 30) {
@@ -414,6 +399,40 @@ bot.on('message', (message) => {
 
     if ((command == "test") && (message.channel.id == testChannelID)) {
         //Function to be tested
+        message.channel.send(Hangman.test());
+        // Get User Info
+        sql.get(`SELECT * FROM users WHERE userId = "${message.author.id}"`).then(row => {
+            if (!row) { // Can't find the row.
+                sql.run("INSERT INTO users (userId, points, level) VALUES (?, ?, ?)", [message.author.id, 1, 0]);
+            } else { // Can find the row.
+                let curLevel = Math.floor(0.1 * Math.sqrt(row.points + 1));
+                if (curLevel > row.level) {
+                    row.level = curLevel;
+                    sql.run(`UPDATE users SET points = ${row.points + 1}, level = ${row.level} WHERE userId = ${message.author.id}`);
+                    message.reply(`You've leveled up to level **${curLevel}**! Ain't that dandy?`);
+                }
+                sql.run(`UPDATE users SET points = ${row.points + 1} WHERE userId = ${message.author.id}`);
+            }
+        }).catch(() => { //If user doesn't exist create a new table in his honor!
+            console.error; // Gotta log those errors
+            sql.run("CREATE TABLE IF NOT EXISTS users (userId TEXT, points INTEGER, level INTEGER)").then(() => {
+                sql.run("INSERT INTO users (userId, points, level) VALUES (?, ?, ?)", [message.author.id, 1, 0]);
+            });
+        });
+    }
+
+    if (command == "level") {
+        sql.get(`SELECT * FROM users WHERE userId ="${message.author.id}"`).then(row => {
+            if (!row) return message.reply("Your current level is 0");
+            message.reply(`Your current level is ${row.level}`);
+        });
+    } else
+
+    if (command == "points") {
+        sql.get(`SELECT * FROM users WHERE userId ="${message.author.id}"`).then(row => {
+            if (!row) return message.reply("sadly you do not have any points yet!");
+            message.reply(`you currently have ${row.points} points, good going!`);
+        });
     }
 
     // Tips
@@ -487,3 +506,23 @@ music(bot, {
 - Hangman
 - Poll
 */
+// CODE DUMP
+//console.log("[DEBUG] crawl(anotherCallback) Response said: VIDEO_TITLE: " + VIDEO_TITLE + " and VIDEO_ID: " + VIDEO_ID);
+//Doesn't know what VIDEO_TITLE and VIDEO_ID are...
+/* Get comments from youtube
+crawl(function(id, title) {
+    VIDEO_ID = id;
+    VIDEO_TITLE = title;
+    console.log("[DEBUG] Crawl Response said: VIDEO_TITLE: ==" + VIDEO_TITLE + "== and VIDEO_ID: ==" + VIDEO_ID + "==");
+    const stream = commentsStream(VIDEO_ID);
+    stream.on('data', function(comment) {
+        console.log(comment.text);
+    });
+    stream.on('error', function(err) {
+        console.error('ERROR READING COMMENTS:', err);
+    });
+    stream.on('end', function() {
+        console.log('NO MORE COMMENTS');
+        process.exit();
+    });
+});*/
