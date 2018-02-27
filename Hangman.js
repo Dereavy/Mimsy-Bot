@@ -25,7 +25,7 @@ var Dictionary = {
     },
     "Human": {
         "instruments": ["Saxophone", "Harp", "Basse", "Violin", "Piano", "Guitar", "Trombone", "Trumpet", "Gong", "Bell", "Triangle", "Cello", "Electric Guitar", "Harp", "Clarinet", "Flute", "Saxophone", "Tuba"],
-        "travel": ["Car", "Bus", "Train", "Boat", "Jet", "Shopping Trolley", "Plane", "Aeroplane", "Jetski", "Submarine", "Hang Glider", "Wingsuit", "Space Rocket", "Dune Buggy"],
+        "travel": ["Car", "Bus", "Train", "Boat", "Jet", "Shopping Trolley", "Plane", "Aeroplane", "Jetski", "Submarine", "Hang Glider", "Wingsuit", "Space Rocket", "Dune Buggy", "Bike", "Skateboard"],
         "inventions": ["Wheel", "Android", "Computer", "Monitor", "Sundial", "Catapult", "Clock", "Mechanical Clock", "Walkman", "Macintosh", "Victrola Record Player", "Radio", "Camera", "Camcorder", "Calculator", "Game Boy", "Typewriter", "GPS", "Answering Machine", "DVD Player", "PlayStation", "Oculus Rift", "Thermostat", "Raspberry Pi", "Segway"],
         "countries": ["France", "Netherlands", "Germany", "Switzerland"]
     },
@@ -56,10 +56,10 @@ var vowels = "aeiouy"
 var guessList = "";
 
 var Difficulty = {
-    "easy": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
-    "medium": [1, 2, 6, 7, 8, 9, 10, 11, 12],
-    "hard": [2, 6, 8, 9, 10, 11, 12],
-    "intense": [1, 6, 8, 12]
+    "easy": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
+    "medium": [0, 1, 2, 6, 7, 8, 9, 10, 11],
+    "hard": [0, 2, 6, 8, 9, 10, 11],
+    "intense": [0, 1, 5, 7, 11]
 };
 
 function randomWord() {
@@ -124,7 +124,7 @@ function isWord(word) {
 
 function includesLetter(string, letter) {
     for (var j = 0; j < string.length; j++) {
-        if (letter == string[j]) { return true; }
+        if (letter.toLowerCase() == string[j].toLowerCase()) { return true; }
     }
     return false;
 }
@@ -237,15 +237,16 @@ module.exports = {
         stages = Object.values(Difficulty)[Object.keys(Difficulty).indexOf(mode)];
         stageIndex = 0;
         for (var i = 0; i < guessList.length; i++) {
-            if (!(includesLetter(word, guessList[i])) && (guessList[i] != " ")) {
-                if (stageIndex < stages.length) {
+            if (!(includesLetter(word, guessList[i])) && (guessList[i] != " ")) { //If the letter in the guesslist is NOT in the word.
+                if (stageIndex < stages.length - 1) {
                     stageIndex++;
                 } else {
                     stageIndex = stages.length - 1;
                 }
             }
+            console.log(stageIndex);
         }
-        stageIndex--;
+        console.log([stageIndex + ":" + stages[stageIndex]]);
         var displayHangman = HangmanStages[stages[stageIndex]];
 
         // Get used letters display 
@@ -256,7 +257,9 @@ module.exports = {
     }
 };
 
-
+// Make function to determine game status: "win"/"lose"/"ongoing" (input = (word, guessList, mode))
+// Make function to display help message with arguments: [ hintCost, ...]
+// Make function to display win message, takes in the word + points + difficulty as arguments
 
 /*
 
