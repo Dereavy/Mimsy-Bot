@@ -135,6 +135,45 @@ bot.on('message', (message) => {
         logChannel.send(loggedMessage);
 
         return;
+        /*    Hangman
+         *
+         * Function: hangmanPlayer() -> check if user exists in table (true/false)
+         * Function: hangmanStatus() -> return Session_Status (true/false)
+         *
+         * !! hm start (arg)=>  | Check if user exists in "Hangman" table ( User_ID /Session_Status/ Word / Guess_List / Hint / Difficulty / TotalPoints)
+         *                      |                                         (example: 23456 / ("Minecraft", "Animals" , "Parrot") / "artesd" / true / "Hard" / 234 )
+         *                      | If hangmanPlayer() == false : Generate table for user
+         *                      | Set difficulty to "medium" if (arg) is not set (otherwise set to arg: 1=easy, 2=medium, 3=hard, 4=intense)
+         *                      | Generate random word for user 
+         *                      | Empty Guess List
+         *                      | Set Hint to true
+         *                      | Set Session_Status to true
+         *
+         * !! hm guess (arg)=>  | (hangmanPlayer() || hangmanStatus()) == false => (throw message "You aren't playing a game atm" then Return;)
+         *                      | Add guess to guessList
+         *                      | Check for win (Hangman.js)
+         *                      |   On Win:
+         *                      |         ° getScore(Hangman.js) => add to TotalPoints
+         *                      |         ° Display "win message" (requires word/guessList)
+         *                      |         ° return
+         *                      |   On Lose:
+         *                      |         ° Display message
+         *                      |         ° set Session_Status to false
+         *                      | Display message (Hangman.js) (requires: word, guessList, mode)
+         * 
+         * 
+         * !! hm hint  =>       | If hangmanStatus() == true && Hint in table is true; 
+         *                      |         ° Remove hangmanHintCost points from user
+         *                      |         ° Set Hint in table to false
+         *                      |         ° Display hint to user : getHint(Word) (Hangman.js)
+         * 
+         * !! hm resume  => if (hangmanStatus() == true): Display message (Hangman.js) else: "No game to resume" message
+         * 
+         * !! hm points => return hangman total points (0 if user doesn't exist)
+         * 
+         * !! hm help => return help message (Hangman.js) (requires prefix)
+         */
+
     }
 
     // AUTOMATIC ACTIONS
@@ -256,7 +295,9 @@ bot.on('message', (message) => {
     if (Actions.areYouBot(lowercaseMessage) == "true") {
         message.channel.send(Actions.iAmNotABot());
     }
-    // Get User Info
+    // Get User Info 
+
+    /*
     sql.get(`SELECT * FROM users WHERE userId = "${message.author.id}"`).then(row => {
         if (!row) { // Can't find the row.
             sql.run("INSERT INTO users (userId, points, level) VALUES (?, ?, ?)", [message.author.id, 1, 0]);
@@ -275,7 +316,7 @@ bot.on('message', (message) => {
             sql.run("INSERT INTO users (userId, points, level) VALUES (?, ?, ?)", [message.author.id, 1, 0]);
         });
     });
-
+*/
 
     //COMMANDS WITH PREFIX
     const prefixCheck = message.content.trim().split(/ +/g)[0];
