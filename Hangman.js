@@ -178,6 +178,47 @@ module.exports = {
     test: function() {
 
     },
+    help: function(prefix) {
+        var msg = "";
+        msg += "**Game in developpement, none of these commands are functional yet.**\n"
+        msg += "\n"
+        msg += "** ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~    H A N G M A N   ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~**\n"
+        msg += "** ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~**\n"
+        msg += "                                                                Commands\n"
+        msg += "** ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~**\n"
+        msg += "\n"
+        msg += "-    Help:                        *` " + prefix + " hm help`*\n"
+        msg += "-    Start Game:           *`" + prefix + " hm start <difficulty>`*\n"
+        msg += "-    Resume Game:     *`" + prefix + " hm resume`*\n"
+        msg += "-    Hint (-5pts):          *`" + prefix + " hm hint`*\n"
+        msg += "-    Points:                     *`" + prefix + " hm points`*\n"
+        msg += "\n"
+        msg += "\n"
+        msg += "** ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~**\n"
+        msg += "                                                                Game\n"
+        msg += "** ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~**\n"
+        msg += "\n"
+        msg += "**Starting the game:**\n"
+        msg += "\n"
+        msg += " Start the game with the command: `" + prefix + " hm start <difficulty>`\n"
+        msg += "\n"
+        msg += " There are four difficulties to pick from:\n"
+        msg += "                                           > ** 1 **: Easy mode\n"
+        msg += "                                           > ** 2 **: Normal mode (Default)\n"
+        msg += "                                           > ** 3 **: Hard mode\n"
+        msg += "                                           > ** 4 **: Intense mode\n"
+        msg += "\n"
+        msg += "The choice of a difficulty is not required;\n"
+        msg += " If no difficulty is chosen, \"Normal mode\" will be picked.\n"
+        msg += "\n"
+        msg += "**playing the game:**\n"
+        msg += "STUFF STUFF STUFF\n"
+        msg += "[2] Hint uses 5 points per use, one use per game.\n"
+        msg += "\n"
+        msg += "\n"
+        msg += "** ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~**\n"
+        return msg;
+    },
 
     randomWord: function() {
         return randomWord();
