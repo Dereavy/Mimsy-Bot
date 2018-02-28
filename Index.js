@@ -119,10 +119,30 @@ bot.on('ready', () => {
 /* Chat */
 bot.on('message', (message) => {
     if (message.author.bot) return;
+    var lowercaseMessage = message.content.toLowerCase();
     var logChannel = bot.channels.get(logChannelID);
     var spacer = "";
     var d = new Date();
     var date = "`" + d.getDate() + "/" + d.getMonth() + "/" + d.getFullYear() + "-`_`" + d.getHours() + ":" + d.getMinutes() + ":" + d.getSeconds() + "`_";
+    const prefixCheck = message.content.trim().split(/ +/g)[0];
+    if (prefix == prefixCheck) {
+        const args = message.content.slice(prefix.length).trim().split(/ +/g);
+        const precommand = args[0];
+        var command = args.shift().toLowerCase();
+        var lowercasemessage = "";
+        for (var i = 0; i < args.length; i++) {
+            lowercasemessage += args[i] + " ";
+            lowercasemessage = lowercasemessage.trim();
+        }
+    } else { var command = "unknown" }
+    if (command == "rules") {
+        message.channel.send({
+            embed: {
+                color: 439293,
+                description: Rules.Rules()
+            }
+        });
+    }
 
 
     //PRIVATE MESSAGES
@@ -133,8 +153,9 @@ bot.on('message', (message) => {
         }
         var loggedMessage = "" + date + " " + "**[PM]** " + spacer + " " + message.author.username + "#" + message.author.discriminator + ": _`" + message.content + "`_";
         logChannel.send(loggedMessage);
-
-        return;
+        if (command == "respond") { message.author.send("Hello") }
+        if (command == "hangman") { message.author.send(Hangman.help(prefix)) }
+        if ((command == "hm") && (lowercasemessage == "")) { message.author.send(Hangman.help(prefix)) }
         /*    Hangman
          *
          * Function: hangmanPlayer() -> check if user exists in table (true/false)
@@ -174,6 +195,7 @@ bot.on('message', (message) => {
          * !! hm help => return help message (Hangman.js) (requires prefix)
          */
 
+        return;
     }
 
     // AUTOMATIC ACTIONS
@@ -225,11 +247,10 @@ bot.on('message', (message) => {
     }
 
     // Cleverbot Integration
-    var lowercaseMessage = message.content.toLowerCase();
     if (Actions.mimsyVerify(lowercaseMessage) == true) {
         if (message.channel.id == mimsyTalkChannelID) {
             Cbot.create(function(err, MimsyAI) {
-                Cbot.ask(lowercasemessage, function(err, response) {
+                Cbot.ask(lowercaseMessage, function(err, response) {
                     message.channel.send(response); // Will likely be: "Living in a lonely world"
                 });
             });
@@ -267,7 +288,7 @@ bot.on('message', (message) => {
         myMessage += 'Commands followed by my prefix => `' + prefix + '`:``` ';
         myMessage += '\nFun Commands:\n ';
         myMessage += prefix + 'Fact\n ' + prefix + 'ai <message directed to the ai>\n ' + prefix + 'video\n ';
-        myMessage += '\nMusic Commands: \n ';
+        myMessage += '\nVoice Channel: \n ';
         myMessage += prefix + 'Summon\n ' + prefix + 'Dismissed' + '```';
         message.channel.send(myMessage);
     }
@@ -319,25 +340,6 @@ bot.on('message', (message) => {
 */
 
     //COMMANDS WITH PREFIX
-    const prefixCheck = message.content.trim().split(/ +/g)[0];
-    if (prefix == prefixCheck) {
-        const args = message.content.slice(prefix.length).trim().split(/ +/g);
-        const precommand = args[0];
-        var command = args.shift().toLowerCase();
-        var lowercasemessage = "";
-        for (var i = 0; i < args.length; i++) {
-            lowercasemessage += args[i] + " ";
-            lowercasemessage = lowercasemessage.trim();
-        }
-    } else { var command = "unknown" }
-    if (command == "rules") {
-        message.channel.send({
-            embed: {
-                color: 439293,
-                description: Rules.Rules()
-            }
-        });
-    }
     //Invalid command
     // Build random fact
     if (command == "fact") {
