@@ -238,10 +238,9 @@ module.exports = {
         var test = regExKey.test(text) ? true : false;
         return test;
     },
-    allowedYoutube: function(channelID) {
-        var allowedID = [378315211607769089, 317066233230917632, 343748288702578689, 311545553198645248];
+    allowedYoutube: function(channelID, allowedIDList) {
         for (i = 0; i < allowedID.length; i++) {
-            if (channelID == allowedID[i]) {
+            if (channelID == allowedIDList[i]) {
                 return true;
                 console.log("the video doesn't belong to channel");
             }
