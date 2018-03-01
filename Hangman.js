@@ -24,7 +24,7 @@ var Dictionary = {
         "mobs": ["Bat", "Chicken", "Cow", "Donkey", "Horse", "Mooshroom", "Ocelot", "Parrot", "Pig", "Rabbit", "Sheep", "Skeleton Horse", "Squid", "Villager", "Cave Spider", "Enderman", "Iron Golem", "Llama", "Polar Bear", "Spider", "Wolf", "Zombie Pigmen", "Blaze", "Chicken Jockey", "Creeper", "Elder Guardian", "Endermite", "Evoker", "Ghast", "Guardian", "Husk", "Magma Cube", "Shulker", "Silverfish", "Skeleton", "Skeleton Horseman", "Slime", "Spider Jockey", "Stray", "Vex", "Vindicator", "Witch", "Wither Skeleton", "Zombie", "Zombie Villager", "Iron Golem", "Snow Golem"]
     },
     "Human": {
-        "instruments": ["Saxophone", "Harp", "Basse", "Violin", "Piano", "Guitar", "Trombone", "Trumpet", "Gong", "Bell", "Triangle", "Cello", "Electric Guitar", "Harp", "Clarinet", "Flute", "Saxophone", "Tuba"],
+        "instruments": ["Saxophone", "Basse", "Violin", "Piano", "Guitar", "Trombone", "Trumpet", "Gong", "Bell", "Triangle", "Cello", "Electric Guitar", "Harp", "Clarinet", "Flute", "Tuba", "Xylophone"],
         "travel": ["Car", "Bus", "Train", "Boat", "Jet", "Shopping Trolley", "Plane", "Aeroplane", "Jetski", "Submarine", "Hang Glider", "Wingsuit", "Space Rocket", "Dune Buggy", "Bike", "Skateboard"],
         "inventions": ["Wheel", "Android", "Computer", "Monitor", "Sundial", "Catapult", "Clock", "Mechanical Clock", "Walkman", "Macintosh", "Victrola Record Player", "Radio", "Camera", "Camcorder", "Calculator", "Game Boy", "Typewriter", "GPS", "Answering Machine", "DVD Player", "PlayStation", "Oculus Rift", "Thermostat", "Raspberry Pi", "Segway"],
         "countries": ["France", "Netherlands", "Germany", "Switzerland"]
@@ -79,15 +79,6 @@ function randomWord() {
 }
 
 // Functions
-function letterInWord(word, letter) {
-    for (var i = 0; i < word.length; i++) {
-        if (word[i] == letter) {
-            return true;
-        }
-    }
-    return false;
-}
-
 function isLetter(letter) {
     if ((typeof letter == "string") && (letter.length == 1)) {
         for (var j = 0; j < alphabet.length; j++) {
@@ -182,10 +173,10 @@ module.exports = {
         var msg = "";
         msg += "**Game in developpement, none of these commands are functional yet.**\n"
         msg += "\n"
-        msg += "** ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~    H A N G M A N   ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~**\n"
-        msg += "** ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~**\n"
-        msg += "                                                                Commands\n"
-        msg += "** ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~**\n"
+        msg += "** ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~    H A N G M A N   ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~**\n"
+        msg += "**  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~**\n"
+        msg += "                                             Commands\n"
+        msg += "**  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~**\n"
         msg += "\n"
         msg += "-    Help:                        *` " + prefix + " hm help`*\n"
         msg += "-    Start Game:           *`" + prefix + " hm start <difficulty>`*\n"
@@ -194,9 +185,9 @@ module.exports = {
         msg += "-    Points:                     *`" + prefix + " hm points`*\n"
         msg += "\n"
         msg += "\n"
-        msg += "** ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~**\n"
-        msg += "                                                                Game\n"
-        msg += "** ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~**\n"
+        msg += "**  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~**\n"
+        msg += "                                             Game\n"
+        msg += "**  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~**\n"
         msg += "\n"
         msg += "**Starting the game:**\n"
         msg += "\n"
@@ -216,7 +207,7 @@ module.exports = {
         msg += "[2] Hint uses 5 points per use, one use per game.\n"
         msg += "\n"
         msg += "\n"
-        msg += "** ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~**\n"
+        msg += "** ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~**\n"
         return msg;
     },
 
@@ -246,7 +237,7 @@ module.exports = {
      *     Increment the hangman stage automatically if a "wrong" letter is added to the guess list
      */
     guess: function(randomWord, guess) {
-        if (letterInWord(randomWord[2], guess)) {
+        if (includesLetter(randomWord[2], guess)) {
             return true;
         }
         return false;
@@ -295,6 +286,23 @@ module.exports = {
 
         // Return message
         return "```" + messageTitle + displayHangman + displayedWord + "```" + displayLetters;
+    },
+    //function startGame => creates new table for new users, resets table values for existing users (except Total_Points)
+    startGame: function(messageAuthorID, newWord) { // (messageAuthorID is of type: "string", newWord  is of type: "string")
+        return sql.get(`SELECT * FROM hangman WHERE User_ID = "${messageAuthorID}"`).then(row => { //grab the row where the user id is the one I want
+            if (!row) { // Can't find the row (New user).
+                sql.run("INSERT INTO hangman (User_ID, Session_Status, Word, Guess_List, Hint, Difficulty, Total_Points) VALUES (?, ?, ?, ?, ?, ?, ?)", [messageAuthorID, true, newWord, "", false, 2, 0]); //create new row for user with default values
+                console.log("started first game for " + messageAuthorID); // This does not work?
+            } else { // Can find the row (Existing user).
+                sql.run(`UPDATE users SET Session_Status = true, word = ${newWord}, Guess_List = "", Hint = false, Difficulty = 2 WHERE User_Id = ${messageAuthorID}`); //Update values for new game.
+                console.log("started new game for " + messageAuthorID); // This does not work?
+            }
+        }).catch(err => { //If table doesn't exist create a new table
+            sql.run("CREATE TABLE IF NOT EXISTS hangman (User_ID, Session_Status, Word, Guess_List, Hint, Difficulty, Total_Points)").then(() => {
+                sql.run("INSERT INTO hangman (User_ID, Session_Status, Word, Guess_List, Hint, Difficulty, Total_Points) VALUES (?, ?, ?, ?, ?, ?, ?)", [messageAuthorID, true, newWord, "", false, 2, 0]);
+            });
+            console.log("Created hangman table for " + messageAuthorID); // This does not work?
+        });
     }
 };
 
