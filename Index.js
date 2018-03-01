@@ -41,6 +41,8 @@ const bananaRoleID = "325737032972238850";
 const followerRoleID = "";
 const noTagRoleID = "410461710332329985";
 const ownerID = "238825468864888833";
+//List channels where YT videos are allowed to be posted:
+const allowedYTChannelIDs = [378315211607769089, 317066233230917632, 343748288702578689, 311545553198645248];
 const updateInterval = 10000; //Milliseconds between Youtube API requests.
 var prefix = "!!";
 
@@ -294,7 +296,7 @@ bot.on('message', (message) => {
 
     //Remove Youtube links from unwanted channels
     if (Actions.containsYoutube(lowercaseMessage) == true) {
-        if (Actions.allowedYoutube(message.channel.id) == false) {
+        if (Actions.allowedYoutube(message.channel.id, allowedYTChannelIDs) == false) {
             message.delete(1000).catch(O_o => {}); //Supposed to delete message
             message.author.sendMessage("I see you tried to post a video in the wrong section.\nPlease only post youtube links in the #media section of Lezappen's discord here:\n\n https://discord.gg/ZDHUfWH")
         }
