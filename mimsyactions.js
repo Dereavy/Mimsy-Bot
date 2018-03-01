@@ -267,6 +267,17 @@ module.exports = {
     isOdd: function(n) {
         return isEven(Number(n) + 1);
     },
+    replaceInWord: function(word, toBeReplaced, replacer) {
+        var ret = "";
+        for (var i = 0; i < word.length; i++) {
+            if (word[i] == toBeReplaced) {
+                ret += replacer;
+            } else {
+                ret += word[i];
+            }
+        }
+        return ret
+    },
     shouldReact: function(channelID, stringy) {
         if (channelID == 414497480928133120) {
             return false
