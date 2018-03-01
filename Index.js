@@ -16,10 +16,11 @@ const Hangman = require("./Hangman.js");
 var cleverbot = require("better-cleverbot-io");
 const sql = require("sqlite");
 const commentsStream = require('youtube-comments-stream');
-
+// https://discordapp.com/oauth2/authorize?client_id=378266781372121108&scope=bot
 
 /* INITIALISATION */
-sql.open("./users.sqlite");
+sql.open("./users.sqlite"); // (userId, points, level)
+sql.open("./hangman.sqlite"); // (User_ID, Session_Status, Word, Guess_List, Hint, Difficulty, Total_Points)
 var livestreamStatus = false;
 var VIDEO_ID = "";
 var VIDEO_TITLE = "";
@@ -33,9 +34,11 @@ var logChannelID = "415987090480955392";
 const mimsyTalkChannelID = "390243354211909632";
 const soundboardChannelID = "414497480928133120";
 const testChannelID = "378315211607769089";
+const suggestionsChannelID = "418370942356684800";
 const YouTubeChannelID = "416757328528932875";
 const flowerRoleID = "404647452201844736";
 const bananaRoleID = "325737032972238850";
+const followerRoleID = "";
 const noTagRoleID = "410461710332329985";
 const ownerID = "238825468864888833";
 const updateInterval = 10000; //Milliseconds between Youtube API requests.
@@ -113,6 +116,7 @@ function isLoggedIn(text) {
     }
     return false;
 }
+
 bot.on('ready', () => {
     bot.user.setGame('with your mind!')
 });
@@ -132,7 +136,6 @@ bot.on('message', (message) => {
         var lowercasemessage = "";
         for (var i = 0; i < args.length; i++) {
             lowercasemessage += args[i] + " ";
-            lowercasemessage = lowercasemessage.trim();
         }
     } else { var command = "unknown" }
     if (command == "rules") {
@@ -156,10 +159,42 @@ bot.on('message', (message) => {
         if (command == "respond") { message.author.send("Hello") }
         if (command == "hangman") { message.author.send(Hangman.help(prefix)) }
         if ((command == "hm") && (lowercasemessage == "")) { message.author.send(Hangman.help(prefix)) }
+
+        function hangmanPlayer() {
+            sql.get(
+                    `SELECT * FROM hangman WHERE User_ID = "${message.author.id}"`)
+                .then(
+                    row => {
+                        if (!row) {
+                            return true;
+                        } else {
+                            return false;
+                        }
+                    }
+                );
+        }
+
+
+        function hangmanSession() {
+            sql.get(`SELECT Session_Status FROM hangman WHERE User_ID = "${message.author.id}"`).then(row => { if (!row) {} else { return row.Session_Status; } });
+        }
+        var newWord = Actions.replaceInWord(Hangman.randomWord()[2], " ", "_").toLowerCase();
+        console.log(newWord)
+
+        if ((command == "hm") && (lowercasemessage == "start")) {
+            Hangman.startGame(message.author.id, newWord);
+            console.log(Hangman.startGame(message.author.id, newWord)); //doesn't work (not expected to)
+            message.author.send(Hangman.getMessage(newWord, "", 2));
+        }
+        /* new hangman user:
+                sql.run(
+                    "INSERT INTO hangman (User_ID, Session_Status, Word, Guess_List, Hint, Difficulty, Total_Points) VALUES (?, ?, ?, ?, ?, ?, ?)",
+                    [message.author.id, true, Hangman.randomWord()[2], "",false, 2, 0] );
+        */
         /*    Hangman
          *
-         * Function: hangmanPlayer() -> check if user exists in table (true/false)
-         * Function: hangmanStatus() -> return Session_Status (true/false)
+         * Function: hangmanPlayer(userID) -> check if user exists in table (true/false)
+         * Function: hangmanSession(userID) -> return Session_Status (true/false)
          *
          * !! hm start (arg)=>  | Check if user exists in "Hangman" table ( User_ID /Session_Status/ Word / Guess_List / Hint / Difficulty / TotalPoints)
          *                      |                                         (example: 23456 / ("Minecraft", "Animals" , "Parrot") / "artesd" / true / "Hard" / 234 )
@@ -170,7 +205,7 @@ bot.on('message', (message) => {
          *                      | Set Hint to true
          *                      | Set Session_Status to true
          *
-         * !! hm guess (arg)=>  | (hangmanPlayer() || hangmanStatus()) == false => (throw message "You aren't playing a game atm" then Return;)
+         * !! hm guess (arg)=>  | (hangmanPlayer() || hangmanSession()) == false => (throw message "You aren't playing a game atm" then Return;)
          *                      | Add guess to guessList
          *                      | Check for win (Hangman.js)
          *                      |   On Win:
@@ -286,6 +321,8 @@ bot.on('message', (message) => {
     if (lowercaseMessage == 'mimsy') {
         var myMessage = 'Hi! So far you can only use these commands: ``` ping ```\n';
         myMessage += 'Commands followed by my prefix => `' + prefix + '`:``` ';
+        myMessage += '\nCommands:\n ';
+        myMessage += prefix + 'suggest <suggestion for Mimsy development>\n ';
         myMessage += '\nFun Commands:\n ';
         myMessage += prefix + 'Fact\n ' + prefix + 'ai <message directed to the ai>\n ' + prefix + 'video\n ';
         myMessage += '\nVoice Channel: \n ';
@@ -317,19 +354,18 @@ bot.on('message', (message) => {
         message.channel.send(Actions.iAmNotABot());
     }
     // Get User Info 
-
-    /*
     sql.get(`SELECT * FROM users WHERE userId = "${message.author.id}"`).then(row => {
         if (!row) { // Can't find the row.
             sql.run("INSERT INTO users (userId, points, level) VALUES (?, ?, ?)", [message.author.id, 1, 0]);
         } else { // Can find the row.
-            let curLevel = Math.floor(0.1 * Math.sqrt(row.points + 1));
-            if (curLevel > row.level) {
-                row.level = curLevel;
-                sql.run(`UPDATE users SET points = ${row.points + 1}, level = ${row.level} WHERE userId = ${message.author.id}`);
-                message.reply(`You've leveled up to level **${curLevel}**! Ain't that dandy?`);
-            }
-            sql.run(`UPDATE users SET points = ${row.points + 1} WHERE userId = ${message.author.id}`);
+            /*let curLevel = Math.floor(0.1 * Math.sqrt(row.points + 1));
+                if (curLevel > row.level) {
+                    row.level = curLevel;
+                    sql.run(`UPDATE users SET points = ${row.points + 1}, level = ${row.level} WHERE userId = ${message.author.id}`);
+                    message.reply(`You've leveled up to level **${curLevel}**! Ain't that dandy?`);
+                }
+                sql.run(`UPDATE users SET points = ${row.points + 1} WHERE userId = ${message.author.id}`);
+            */
         }
     }).catch(() => { //If user doesn't exist create a new table in his honor!
         console.error; // Gotta log those errors
@@ -337,7 +373,6 @@ bot.on('message', (message) => {
             sql.run("INSERT INTO users (userId, points, level) VALUES (?, ?, ?)", [message.author.id, 1, 0]);
         });
     });
-*/
 
     //COMMANDS WITH PREFIX
     //Invalid command
@@ -478,7 +513,23 @@ bot.on('message', (message) => {
             message.reply(`you currently have ${row.points} points, good going!`);
         });
     }
-
+    if (command == "suggest") {
+        var suggestionChannel = bot.channels.get(suggestionsChannelID);
+        suggestionChannel.send({
+            embed: {
+                title: "*`Suggestion:`*",
+                url: "",
+                color: 439293,
+                timestamp: new Date(),
+                footer: {
+                    icon_url: message.author.avatarURL,
+                    text: "Suggested by " + message.author.username + "#" + message.author.discriminator
+                },
+                description: "```" + lowercasemessage + "```"
+            }
+        });
+        message.delete(1000).catch(O_o => {});
+    }
     // Tips
     if (command == "tips") {
         message.channel.send({
