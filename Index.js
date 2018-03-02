@@ -21,10 +21,12 @@ const commentsStream = require('youtube-comments-stream');
 /* INITIALISATION */
 sql.open("./users.sqlite"); // (userId, points, level)
 sql.open("./hangman.sqlite"); // (User_ID, Session_Status, Word, Guess_List, Hint, Difficulty, Total_Points)
+sql.open("./subscribers.sqlite"); // (User_ID, loyaltyPoints)
 var livestreamStatus = false;
 var VIDEO_ID = "";
 var VIDEO_TITLE = "";
 var loggedInList = []; //List of users that have logged in this mimsy day!
+var tempSub = []; // List of people having executed the follow command
 var activeVoiceChannel = ""; //Voice Channel the bot is currently in, prevents a user from summoning the bot multiple times to the same channel.
 const bot = new Discord.Client();
 const Cbot = new cleverbot({ key: Login.getCleverbotKey(), user: Login.getCleverbotUser(), nick: "MimsyAI" });
@@ -38,7 +40,7 @@ const suggestionsChannelID = "418370942356684800";
 const YouTubeChannelID = "416757328528932875";
 const flowerRoleID = "404647452201844736";
 const bananaRoleID = "325737032972238850";
-const followerRoleID = "";
+const followerRoleID = "418524770448048129";
 const noTagRoleID = "410461710332329985";
 const ownerID = "238825468864888833";
 //List channels where YT videos are allowed to be posted:
@@ -55,10 +57,13 @@ const YTAPIStatusURL = ('https://www.googleapis.com/youtube/v3/liveBroadcasts?pa
 bot.login(Login.getToken());
 console.log(`[Start] ${new Date()}`);
 console.log("Discord Bot: Mimsy has launched!");
-setInterval(function() {
+setInterval(function() { //12 hour loop
     console.log('It\'s a new beautifull day!');
-    loggedInList = []; //Start a new mimsy day every 12 hours 
+    loggedInList = []; //Start a new mimsy day every 12 hours
+    tempSub = []; //Players can reuse the 'follow' command 
 }, 43200000);
+//setInterval(function() { //1 hour loop
+//}, 3600000);
 
 // GETS YOUTUBE INFO EVERY "updateInterval" Milliseconds
 function crawl(anotherCallback) {
@@ -105,7 +110,7 @@ function streamStatus(bool) {
         livestreamStatus = bool;
         if (livestreamStatus == false) { bot.channels.get(YouTubeChannelID).send("Live stream has gone offline!"); }
         if (livestreamStatus == true) {
-            bot.channels.get(YouTubeChannelID).send(" **Live stream is now online!**\nJoin the stream ;)\nVideo: **" + VIDEO_TITLE + "**\nhttps://www.youtube.com/watch?v=" + VIDEO_ID);
+            bot.channels.get(YouTubeChannelID).send(" **Live stream is now online!**\nJoin the stream ;)\nVideo: **" + VIDEO_TITLE + "**\nhttps://www.youtube.com/watch?v=" + VIDEO_ID + "\n <@&" + followerRoleID + ">");
         }
     }
 }
@@ -119,9 +124,17 @@ function isLoggedIn(text) {
     return false;
 }
 
+function isSubscribed(userID) {
+    for (var i = 0; i < tempSub.length; i++) {
+        if (tempSub[i] == userID) { return true; }
+    }
+    return false;
+}
+
+
 bot.on('ready', () => {
     bot.user.setGame('with your mind!');
-    bot.channels.get(suggestionsChannelID).fetchMessages()
+    (bot.channels.get(suggestionsChannelID)).fetchMessages()
 });
 /* Chat */
 /*
@@ -192,7 +205,7 @@ bot.on('message', (message) => {
         if ((command == "hm") && (lowercasemessage == "")) { message.author.send(Hangman.help(prefix)) }
 
         function hangmanPlayer() {
-            sql.get(
+            return sql.get(
                     `SELECT * FROM hangman WHERE User_ID = "${message.author.id}"`)
                 .then(
                     row => {
@@ -350,15 +363,16 @@ bot.on('message', (message) => {
     }
 
     if (lowercaseMessage == 'mimsy') {
-        var myMessage = 'Hi! So far you can only use these commands: ``` ping ```\n';
-        myMessage += 'Commands followed by my prefix => `' + prefix + '`:``` ';
-        myMessage += '\nCommands:\n ';
-        myMessage += prefix + 'suggest <suggestion for Mimsy development>\n ';
-        myMessage += '\nFun Commands:\n ';
-        myMessage += prefix + 'Fact\n ' + prefix + 'ai <message directed to the ai>\n ' + prefix + 'video\n ';
-        myMessage += '\nVoice Channel: \n ';
-        myMessage += prefix + 'Summon\n ' + prefix + 'Dismissed' + '```';
-        message.channel.send(myMessage);
+        var helpMsg = 'Hi! So far you can only use these commands: ``` ping ```\n';
+        helpMsg += 'Commands followed by my prefix => `' + prefix + '`:``` ';
+        helpMsg += '\nCommands:\n ';
+        helpMsg += prefix + 'suggest <suggestion for Mimsy development>\n ';
+        helpMsg += prefix + '(un)follow/(un)subscribe Toggle notifications for new streams, become a subscriber!\n ';
+        helpMsg += '\nFun Commands:\n ';
+        helpMsg += prefix + 'Fact\n ' + prefix + 'ai <message directed to the ai>\n ' + prefix + 'video\n ';
+        helpMsg += '\nVoice Channel: \n ';
+        helpMsg += prefix + 'Summon\n ' + prefix + 'Dismissed' + '```';
+        message.channel.send(helpMsg);
     }
     if (lowercaseMessage == 'i am dutch') {
         message.channel.send('Ik ben een pannenkoek!');
@@ -528,7 +542,7 @@ bot.on('message', (message) => {
 
     if ((command == "test") && (message.channel.id == testChannelID)) {
         //Function to be tested
-        message.channel.send(Hangman.getMessage("Answering Machine", lowercasemessage, "easy"));
+
     }
 
     if (command == "level") {
@@ -536,12 +550,41 @@ bot.on('message', (message) => {
             if (!row) return message.reply("Your current level is 0");
             message.reply(`Your current level is ${row.level}`);
         });
-    } else
+    }
 
     if (command == "points") {
         sql.get(`SELECT * FROM users WHERE userId ="${message.author.id}"`).then(row => {
             if (!row) return message.reply("sadly you do not have any points yet!");
             message.reply(`you currently have ${row.points} points, good going!`);
+        });
+    }
+
+    if ((command == "follow") || (command == "subscribe")) {
+        message.member.addRole(followerRoleID);
+        message.author.send("Thank you for subscribing!");
+        message.delete(1000).catch(O_o => {});
+        // Add user to "subscribers" if he doesn't exist in it:
+        sql.get(`SELECT * FROM subscribers WHERE userId = "${message.author.id}"`).then(row => {
+            if (!row) { // Can't find the row.
+                sql.run("INSERT INTO subscribers (userId, points) VALUES (?, ?)", [message.author.id, 10]);
+            }
+        }).catch(() => {
+            sql.run("CREATE TABLE IF NOT EXISTS subscribers (userId TEXT, points INTEGER)").then(() => {
+                sql.run("INSERT INTO subscribers (userId, points) VALUES (?, ?)", [message.author.id, 10]);
+                return (bot.channels.get(YouTubeChannelID)).send("Congratulations to " + message.member.displayName + "#" + message.author.discriminator + " for becoming a new subscriber!");
+            });
+        });
+    }
+    if ((command == "unfollow") || (command == "unsubscribe")) {
+        message.member.removeRole(followerRoleID);
+        message.author.send("You are now unsubscribed")
+        sql.get(`SELECT * FROM subscribers WHERE userId = "${message.author.id}"`).then(row => {
+            if (!row) {
+                return 0;
+            } else {
+                sql.run(`DELETE * FROM subscribers WHERE userId = "${message.author.id}"`);
+            }
+            message.delete(1000).catch(O_o => {});
         });
     }
     if (command == "suggest") {
