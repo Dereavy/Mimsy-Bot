@@ -120,11 +120,40 @@ function isLoggedIn(text) {
 }
 
 bot.on('ready', () => {
-    bot.user.setGame('with your mind!')
+    bot.user.setGame('with your mind!');
+    bot.channels.get(suggestionsChannelID).fetchMessages()
 });
 /* Chat */
+/*
+bot.on('messageReactionAdd', (reaction, user) => {
+    if ((reaction.message.channel.id == suggestionsChannelID) && (user.id == ownerID)) {
+        if (reaction.emoji.identifier == "%E2%9C%85") {
+            var newEmbed = new Discord.RichEmbed(reaction.message.embeds[0])
+            var content  =?
+            console.log(content);
+            reaction.message.edit(content, { color: "123132" })
+                //reaction.message.edit("00b300", reaction.message. )
+        }
+    }
+}); */
+function removeCircularReferences(obj) {
+    const objs = new Map;
+    for (const prop in obj) typeof obj[prop] === "object" && obj[prop] !== null && (objs.has(obj[prop]) ? delete obj[prop] : objs.set(obj[prop]));
+}
+bot.on('messageReactionAdd', (reaction, user) => {
+    if ((reaction.message.channel.id == suggestionsChannelID) && (user.id == ownerID)) {
+        if (reaction.emoji.identifier == "%E2%9C%85") {
+            let newEmbed = new Discord.RichEmbed(reaction.message.embeds[0]).setColor(0x006600);
+            Object.values(newEmbed).forEach(v => { if (v && v.embed) delete(v.embed) });
+            reaction.message.edit("", { embed: newEmbed });
+        }
+    }
+});
 bot.on('message', (message) => {
-    if (message.author.bot) return;
+    if (message.author.bot) {
+        if (message.channel.id == suggestionsChannelID) {}
+        return;
+    }
     var lowercaseMessage = message.content.toLowerCase();
     var logChannel = bot.channels.get(logChannelID);
     var spacer = "";
