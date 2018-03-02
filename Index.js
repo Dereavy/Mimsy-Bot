@@ -571,8 +571,8 @@ bot.on('message', (message) => {
         }).catch(() => {
             sql.run("CREATE TABLE IF NOT EXISTS subscribers (userId TEXT, points INTEGER)").then(() => {
                 sql.run("INSERT INTO subscribers (userId, points) VALUES (?, ?)", [message.author.id, 10]);
-                return (bot.channels.get(YouTubeChannelID)).send("Congratulations to " + message.member.displayName + "#" + message.author.discriminator + " for becoming a new subscriber!");
             });
+            (bot.channels.get(YouTubeChannelID)).send("Congratulations to " + message.member.displayName + "#" + message.author.discriminator + " for becoming a new subscriber!");
         });
     }
     if ((command == "unfollow") || (command == "unsubscribe")) {
