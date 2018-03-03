@@ -373,6 +373,7 @@ bot.on('message', (message) => {
         helpMsg += '\nCommands:\n ';
         helpMsg += prefix + 'suggest <suggestion for Mimsy development>\n ';
         helpMsg += prefix + '(un)follow/(un)subscribe Toggle notifications for new streams, become a subscriber!\n ';
+        helpMsg += prefix + 'followDate Get the date when you first subscribed\n ';
         helpMsg += '\nFun Commands:\n ';
         helpMsg += prefix + 'Fact\n ' + prefix + 'ai <message directed to the ai>\n ' + prefix + 'video\n ';
         helpMsg += '\nVoice Channel: \n ';
