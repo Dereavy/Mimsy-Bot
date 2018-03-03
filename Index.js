@@ -592,7 +592,7 @@ bot.on('message', (message) => {
         var sqliteDate = (new Date()).toISOString();
         sql.get(`SELECT * FROM subscribers WHERE userId = "${message.author.id}"`).then(row => {
             if (!row) { // Can't find the row.
-                sql.run("INSERT INTO subscribers (userId, points) VALUES (?, ?)", [message.author.id, 10]).then(() => {
+                sql.run("INSERT INTO subscribers (userId, joinDate, points) VALUES (?, DATETIME DEFAULT CURRENT_TIMESTAMP, ?)", [message.author.id, 10]).then(() => {
                     (bot.channels.get(YouTubeChannelID)).send({
                         "embed": {
                             "description": "\uD83C\uDF89 Congratulations to **" + message.member.displayName + "#" + message.author.discriminator + "** for becoming a new subscriber! \uD83C\uDF88",
@@ -605,10 +605,15 @@ bot.on('message', (message) => {
                         }
                     });
                 });
-            } else {}
+            } else {
+                if (!row.joinDate) {
+                    sql.run(`UPDATE subscribers SET joinDate = (DATETIME('now')) WHERE userId = "${message.author.id}"`).then(() => {});
+                }
+
+            }
         }).catch(() => {
             sql.run("CREATE TABLE IF NOT EXISTS subscribers (userId TEXT, joinDate DATETIME DEFAULT CURRENT_TIMESTAMP, points INTEGER)").then(() => {
-                sql.run("INSERT INTO subscribers (userId, points) VALUES (?, ?)", [message.author.id, 10]).then(() => { console.log("added user to table") });
+                sql.run("INSERT INTO subscribers (userId, joinDate, points) VALUES (?, DATETIME DEFAULT CURRENT_TIMESTAMP, ?)", [message.author.id, 10]).then(() => { console.log("added user to table") });
                 console.log("created table, adding user");
             });
             console.log("sending message to suggestions channel");
@@ -637,7 +642,7 @@ bot.on('message', (message) => {
             message.delete(1000).catch(O_o => {});
         });
     }
-    if (command == "followdate") {
+    if ((command == "followdate") && (message.member.roles.has(followerRoleID))) {
         sql.get(`SELECT * FROM subscribers WHERE userId = "${message.author.id}"`).then(row => {
             if (!row) {} else {
                 console.log(row);
