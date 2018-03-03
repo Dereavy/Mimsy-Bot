@@ -110,7 +110,7 @@ function streamStatus(bool) {
         livestreamStatus = bool;
         if (livestreamStatus == false) { bot.channels.get(YouTubeChannelID).send("Live stream has gone offline!"); }
         if (livestreamStatus == true) {
-            bot.channels.get(YouTubeChannelID).send(" **Live stream is now online!**\nJoin the stream ;)\nVideo: **" + VIDEO_TITLE + "**\nhttps://www.youtube.com/watch?v=" + VIDEO_ID + "\n <@&" + followerRoleID + ">");
+            bot.channels.get(YouTubeChannelID).send("  <@&" + followerRoleID + "> - **Live stream is now online!**\nJoin the stream ;)\nVideo: **" + VIDEO_TITLE + "**\nhttps://www.youtube.com/watch?v=" + VIDEO_ID + "Get notified: ` " + prefix + " subscribe `");
         }
     }
 }
@@ -157,6 +157,11 @@ bot.on('messageReactionAdd', (reaction, user) => {
     if ((reaction.message.channel.id == suggestionsChannelID) && (user.id == ownerID)) {
         if (reaction.emoji.identifier == "%E2%9C%85") {
             let newEmbed = new Discord.RichEmbed(reaction.message.embeds[0]).setColor(0x006600);
+            Object.values(newEmbed).forEach(v => { if (v && v.embed) delete(v.embed) });
+            reaction.message.edit("", { embed: newEmbed });
+        }
+        if (reaction.emoji.identifier == "%E2%9D%8C") {
+            let newEmbed = new Discord.RichEmbed(reaction.message.embeds[0]).setColor(0xff0000);
             Object.values(newEmbed).forEach(v => { if (v && v.embed) delete(v.embed) });
             reaction.message.edit("", { embed: newEmbed });
         }
@@ -542,6 +547,26 @@ bot.on('message', (message) => {
 
     if ((command == "test") && (message.channel.id == testChannelID)) {
         //Function to be tested
+        // (`SELECT * FROM subscribers WHERE userId = "${message.author.id}"`) == row == {userId:'string', points:'integer'}
+        /*
+        sql.run(`DELETE * FROM subscribers WHERE userId = "${message.author.id}"`);
+        sql.run("DROP TABLE subscribers");
+        sql.run("CREATE TABLE IF NOT EXISTS subscribers (userId TEXT, points INTEGER)");
+        sql.get(`SELECT * FROM subscribers WHERE userId = "${message.author.id}"`).then(row => {
+            if (!row) { // Can't find the row.
+                console.log("this is a test"); // Nothing is logged
+                console.error;
+            } else {
+                console.log(row); // nothing is logged
+                console.error;
+            }
+            console.log(row); // nothing is logged
+            console.error;
+        }).catch(() => {
+            console.error;
+            console.log("creating table");
+            sql.run("CREATE TABLE IF NOT EXISTS subscribers (userId TEXT, points INTEGER)")
+        }); */
 
     }
 
@@ -552,32 +577,56 @@ bot.on('message', (message) => {
         });
     }
 
-    if (command == "points") {
+    if (command == "messages") {
         sql.get(`SELECT * FROM users WHERE userId ="${message.author.id}"`).then(row => {
-            if (!row) return message.reply("sadly you do not have any points yet!");
-            message.reply(`you currently have ${row.points} points, good going!`);
+            if (!row) return message.reply("sadly you do not have any messages yet!");
+            message.reply(`You currently have ${row.points} messages!`);
         });
     }
-
     if ((command == "follow") || (command == "subscribe")) {
         message.member.addRole(followerRoleID);
         message.author.send("Thank you for subscribing!");
         message.delete(1000).catch(O_o => {});
         // Add user to "subscribers" if he doesn't exist in it:
+        var sqliteDate = (new Date()).toISOString();
         sql.get(`SELECT * FROM subscribers WHERE userId = "${message.author.id}"`).then(row => {
             if (!row) { // Can't find the row.
-                sql.run("INSERT INTO subscribers (userId, points) VALUES (?, ?)", [message.author.id, 10]);
-            }
+                sql.run("INSERT INTO subscribers (userId, points) VALUES (?, ?)", [message.author.id, 10]).then(() => {
+                    (bot.channels.get(YouTubeChannelID)).send({
+                        "embed": {
+                            "description": "\uD83C\uDF89 Congratulations to **" + message.member.displayName + "#" + message.author.discriminator + "** for becoming a new subscriber! \uD83C\uDF88",
+                            "color": 5834442,
+                            "timestamp": new Date(),
+                            "footer": {
+                                "icon_url": message.member.icon_url,
+                                "text": "  Subscribed"
+                            }
+                        }
+                    });
+                });
+            } else {}
         }).catch(() => {
-            sql.run("CREATE TABLE IF NOT EXISTS subscribers (userId TEXT, points INTEGER)").then(() => {
-                sql.run("INSERT INTO subscribers (userId, points) VALUES (?, ?)", [message.author.id, 10]);
+            sql.run("CREATE TABLE IF NOT EXISTS subscribers (userId TEXT, joinDate DATETIME DEFAULT CURRENT_TIMESTAMP, points INTEGER)").then(() => {
+                sql.run("INSERT INTO subscribers (userId, points) VALUES (?, ?)", [message.author.id, 10]).then(() => { console.log("added user to table") });
+                console.log("created table, adding user");
             });
-            (bot.channels.get(YouTubeChannelID)).send("Congratulations to " + message.member.displayName + "#" + message.author.discriminator + " for becoming a new subscriber!");
+            console.log("sending message to suggestions channel");
+            (bot.channels.get(YouTubeChannelID)).send({
+                "embed": {
+                    "description": "\uD83C\uDF89 Congratulations to **" + message.member.displayName + "#" + message.author.discriminator + "** for becoming a new subscriber! \uD83C\uDF88",
+                    "color": 5834442,
+                    "timestamp": new Date(),
+                    "footer": {
+                        "icon_url": message.member.icon_url,
+                        "text": "  Subscribed"
+                    }
+                }
+            });
         });
     }
     if ((command == "unfollow") || (command == "unsubscribe")) {
         message.member.removeRole(followerRoleID);
-        message.author.send("You are now unsubscribed")
+        message.author.send("You are now unsubscribed");
         sql.get(`SELECT * FROM subscribers WHERE userId = "${message.author.id}"`).then(row => {
             if (!row) {
                 return 0;
@@ -587,11 +636,19 @@ bot.on('message', (message) => {
             message.delete(1000).catch(O_o => {});
         });
     }
+    if (command == "followdate") {
+        sql.get(`SELECT * FROM subscribers WHERE userId = "${message.author.id}"`).then(row => {
+            if (!row) {} else {
+                console.log(row);
+                return message.reply("You have been a subscriber since: " + row.joinDate);
+            }
+        })
+    }
     if (command == "suggest") {
         var suggestionChannel = bot.channels.get(suggestionsChannelID);
         suggestionChannel.send({
             embed: {
-                title: "*`Suggestion:`*",
+                title: "Suggestion:",
                 url: "",
                 color: 439293,
                 timestamp: new Date(),
@@ -604,6 +661,7 @@ bot.on('message', (message) => {
         });
         message.delete(1000).catch(O_o => {});
     }
+
     // Tips
     if (command == "tips") {
         message.channel.send({
@@ -650,34 +708,13 @@ bot.on('message', (message) => {
     var oldmessage = lowercasemessage;
 });
 
-//no idea, for future use maybe.
-music(bot, {
-    prefix: '!m ', // Prefix of '-'.
-    global: false, // Server-specific queues.
-    maxQueueSize: 10, // Maximum queue size of 10.
-    clearInvoker: true, // If permissions applicable, allow the bot to delete the messages that invoke it (start with prefix)
-    channel: 'music' // Name of voice channel to join. If omitted, will instead join user's voice channel.
-});
-/*
- * @param {Client} client - The discord.js client.
- * @param {object} options - (Optional) Options to configure the music bot. Acceptable options are:
- * 		prefix: The prefix to use for the commands (default '!').
- * 		global: Whether to use a global queue instead of a server-specific queue (default false).
- * 		maxQueueSize: The maximum queue size (default 20).
- * 		anyoneCanSkip: Allow anybody to skip the song.
- * 		clearInvoker: Clear the command message.
- * 		volume: The default volume of the player.
- *      channel: Name of voice channel to join. If omitted, will instead join user's voice channel.
- */
-//music(bot, options);
+
 /* TO DO LIST */
 /*
 - Hangman
 - Poll
 */
 // CODE DUMP
-//console.log("[DEBUG] crawl(anotherCallback) Response said: VIDEO_TITLE: " + VIDEO_TITLE + " and VIDEO_ID: " + VIDEO_ID);
-//Doesn't know what VIDEO_TITLE and VIDEO_ID are...
 /* Get comments from youtube
 crawl(function(id, title) {
     VIDEO_ID = id;
