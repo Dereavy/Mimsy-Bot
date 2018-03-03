@@ -92,6 +92,10 @@ module.exports = {
             return (true);
         }
     },
+
+    formatDate: function(value) {
+        return value.getMonth() + 1 + "/" + value.getDate() + "/" + value.getYear();
+    },
     /*
         getUserFromString: function(userReason) {
                 var regExKey = new RegExp("^<@(d{15,18})>");
