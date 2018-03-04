@@ -237,7 +237,6 @@ bot.on('message', (message) => {
         }
         var newWord = Actions.replaceInWord(Hangman.randomWord()[2], " ", "_").toLowerCase();
         console.log(newWord)
-
         if ((command == "hm") && (lowercasemessage == "start")) {
             Hangman.startGame(message.author.id, newWord);
             console.log(Hangman.startGame(message.author.id, newWord)); //doesn't work (not expected to)
@@ -650,9 +649,10 @@ bot.on('message', (message) => {
     }
     if ((command == "followdate") && (message.member.roles.has(followerRoleID))) {
         sql.get(`SELECT * FROM subscribers WHERE userId = "${message.author.id}"`).then(row => {
-            if (!row) {} else {
-                return message.reply("You have been a subscriber since: " + row.joinDate);
-            }
+            if (row) {
+                var dateSubscribed = row.joinDate;
+                return message.reply("You have been a subscriber since: " + dateSubscribed);
+            } else {}
         })
     }
     if (command == "suggest") {
