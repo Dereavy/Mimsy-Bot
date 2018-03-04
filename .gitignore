@@ -43,3 +43,5 @@ Thumbs.db
 ###############
 botToken.js
 WORM.png
+node_modules
+*.vs
