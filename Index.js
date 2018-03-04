@@ -21,7 +21,8 @@ const commentsStream = require('youtube-comments-stream');
 /* INITIALISATION */
 sql.open("./users.sqlite"); // (userId, points, level)
 sql.open("./hangman.sqlite"); // (User_ID, Session_Status, Word, Guess_List, Hint, Difficulty, Total_Points)
-sql.open("./subscribers.sqlite"); // (User_ID, loyaltyPoints)
+sql.open("./subscribers.sqlite"); // (User_ID, joinDate, loyaltyPoints)
+sql.open("./suggestions.sqlite"); // (messageID, User_ID)
 var livestreamStatus = false;
 var VIDEO_ID = "";
 var VIDEO_TITLE = "";
@@ -616,7 +617,6 @@ bot.on('message', (message) => {
                 if (!row.joinDate) {
                     sql.run(`UPDATE subscribers SET joinDate = (DATETIME('now')) WHERE userId = "${message.author.id}"`).then(() => {});
                 }
-
             }
         }).catch(() => {
             sql.run("CREATE TABLE IF NOT EXISTS subscribers (userId TEXT, joinDate DATETIME DEFAULT CURRENT_TIMESTAMP, points INTEGER)").then(() => {
@@ -653,26 +653,70 @@ bot.on('message', (message) => {
         sql.get(`SELECT * FROM subscribers WHERE userId = "${message.author.id}"`).then(row => {
             if (row) {
                 var dateSubscribed = row.joinDate;
+                console.log(row)
                 return message.reply("You have been a subscriber since: " + dateSubscribed);
             } else {}
         })
     }
     if (command == "suggest") {
-        var suggestionChannel = bot.channels.get(suggestionsChannelID);
-        suggestionChannel.send({
-            embed: {
-                title: "Suggestion:",
-                url: "",
-                color: 439293,
-                timestamp: new Date(),
-                footer: {
-                    icon_url: message.author.avatarURL,
-                    text: "Suggested by " + message.author.username + "#" + message.author.discriminator
-                },
-                description: "```" + lowercasemessage + "```"
-            }
+        sql.run("INSERT INTO suggestions (userId, messageDiscordID) VALUES (?,?)", [message.author.id, message.id]).then(row => {
+                console.log("New suggestion added!");
+                console.log(row);
+                var suggestionChannel = bot.channels.get(suggestionsChannelID);
+                suggestionChannel.send({
+                    embed: {
+                        title: "Suggestion: " + row.lastID,
+                        url: "",
+                        color: 439293,
+                        timestamp: new Date(),
+                        footer: {
+                            icon_url: message.author.avatarURL,
+                            text: "Suggested by " + message.author.username + "#" + message.author.discriminator
+                        },
+                        description: "```" + lowercasemessage + "```"
+                    }
+                });
+                message.delete(1000).catch(O_o => {});
+            })
+            .catch(() => { //If suggestions doesn't exist create a new table 
+                console.error; // Gotta log those errors
+                sql.run("CREATE TABLE IF NOT EXISTS suggestions (messageID INTEGER PRIMARY KEY, userId TEXT, messageDiscordID TEXT)").then(() => {
+                    sql.run("INSERT INTO suggestions (userId, messageDiscordID) VALUES (?,?)", [message.author.id, message.id]);
+                    console.log("Added user to newly created table");
+                });
+                console.log("creating suggestions table");
+            });
+    }
+    /**
+     * 
+     * const id = Actions.getUserTag(msg.embeds[0].title);
+     * const newMsg = messages.find(m => m.id === id);
+     */
+    if (command == "comment") {
+        var args = lowercasemessage.trim().split(/ +/g);
+        var messageID = Number(args[0]);
+        var comment = lowercasemessage.slice(args[0].length);
+        /*
+        (bot.channels.get(suggestionsChannelID)).fetchMessages().then(suggestionChannelMessages => {
+            //console.log(suggestionChannelMessages);
+            const id = function(msg) { return Actions.getUserTag(msg.embeds[0].title) };
+            const retrievedMsg = suggestionChannelMessages.find(m => (id(m)) === id);
+            let newEmbed = new Discord.RichEmbed(retrievedMsg.embeds[0]).addField(message.author.tag, "  >  ` " + comment + " `");
+            Object.values(newEmbed).forEach(v => { if (v && v.embed) delete(v.embed) });
+            retrievedMsg.edit("", { embed: newEmbed });
         });
-        message.delete(1000).catch(O_o => {});
+        */
+        var messageTitle = "Suggestion " + messageID;
+        (bot.channels.get(suggestionsChannelID)).fetchMessages().then(messageList => {
+            var retrievedMsg = messageList.find(function(m) {
+                console.log(m.embeds[0]["title"]);
+                return m.embeds[0]["title"] === messageTitle;
+            });
+            console.log(retrievedMsg);
+            let newEmbed = new Discord.RichEmbed(retrievedMsg.embeds[0]).addField(message.author.tag, "  >  ` " + comment + " `");
+            Object.values(newEmbed).forEach(v => { if (v && v.embed) delete(v.embed) });
+            retrievedMsg.edit("", { embed: newEmbed });
+        });
     }
 
     // Tips
