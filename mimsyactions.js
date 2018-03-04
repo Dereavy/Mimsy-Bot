@@ -243,6 +243,32 @@ module.exports = {
             }
         }
     },
+    getSuggestionID: function(text) {
+        var args = text.trim().split(/ +/g);
+        var regExKey = new RegExp("[0-9]*");
+        for (var i = 0; i < args.length; i++) {
+            if (regExKey.test(args[i])) {
+                return args[i];
+            }
+        }
+    },
+    objectLength: function(object) {
+        var length = 0;
+        for (var key in object) {
+            if (object.hasOwnProperty(key)) {
+                ++length;
+            }
+        }
+        return length;
+    },
+    findObjectByKey: function(array, key, value) {
+        for (var i = 0; i < array.length; i++) {
+            if (array[i][key] === value) {
+                return array[i];
+            }
+        }
+        return null;
+    },
     //(http:|https:)?\/\/(www\.)?(youtube\.com|youtu\.be)\/(watch)?(\?v=)?(\S+)?
     //(http:|https:)?//(www.)?(youtube.com|youtu.be)/(watch)?(?v=)?(S+)?
     //
@@ -252,7 +278,7 @@ module.exports = {
         return test;
     },
     allowedYoutube: function(channelID, allowedIDList) {
-        for (i = 0; i < allowedID.length; i++) {
+        for (i = 0; i < allowedIDList.length; i++) {
             if (channelID == allowedIDList[i]) {
                 return true;
                 console.log("the video doesn't belong to channel");
