@@ -166,6 +166,14 @@ bot.on('messageReactionAdd', (reaction, user) => {
             reaction.message.edit("", { embed: newEmbed });
         }
     }
+    if ((reaction.message.channel.id == suggestionsChannelID) && (typeof reaction.message.embeds[0] != "undefined")) {
+        var suggestionOwnerTag = Actions.getUserTag(reaction.message.embeds[0]["footer"]["text"]);
+    }
+    if ((reaction.message.channel.id == suggestionsChannelID) && (user.tag == suggestionOwnerTag)) {
+        if (reaction.emoji.identifier == "%E2%9D%8C") {
+            reaction.message.delete(1000).catch(O_o => {});
+        }
+    }
 });
 bot.on('message', (message) => {
     if (message.author.bot) {
@@ -588,8 +596,6 @@ bot.on('message', (message) => {
         message.member.addRole(followerRoleID);
         message.author.send("Thank you for subscribing!");
         message.delete(1000).catch(O_o => {});
-        // Add user to "subscribers" if he doesn't exist in it:
-        var sqliteDate = (new Date()).toISOString();
         sql.get(`SELECT * FROM subscribers WHERE userId = "${message.author.id}"`).then(row => {
             if (!row) { // Can't find the row.
                 sql.run("INSERT INTO subscribers (userId, joinDate, points) VALUES (?, DATETIME DEFAULT CURRENT_TIMESTAMP, ?)", [message.author.id, 10]).then(() => {
@@ -645,7 +651,6 @@ bot.on('message', (message) => {
     if ((command == "followdate") && (message.member.roles.has(followerRoleID))) {
         sql.get(`SELECT * FROM subscribers WHERE userId = "${message.author.id}"`).then(row => {
             if (!row) {} else {
-                console.log(row);
                 return message.reply("You have been a subscriber since: " + row.joinDate);
             }
         })
