@@ -234,6 +234,15 @@ module.exports = {
         var test = regExKey.test(text) ? "true" : "false";
         return test;
     },
+    getUserTag: function(text) {
+        var args = text.trim().split(/ +/g);
+        var regExKey = new RegExp("\\S*#[0-9]{4}");
+        for (var i = 0; i < args.length; i++) {
+            if (regExKey.test(args[i])) {
+                return args[i];
+            }
+        }
+    },
     //(http:|https:)?\/\/(www\.)?(youtube\.com|youtu\.be)\/(watch)?(\?v=)?(\S+)?
     //(http:|https:)?//(www.)?(youtube.com|youtu.be)/(watch)?(?v=)?(S+)?
     //
