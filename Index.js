@@ -59,11 +59,13 @@ console.log(`[Start] ${new Date()}`);
 console.log("Discord Bot: Mimsy has launched!");
 setInterval(function() { //12 hour loop
     console.log('It\'s a new beautifull day!');
-    loggedInList = []; //Start a new mimsy day every 12 hours
     tempSub = []; //Players can reuse the 'follow' command 
 }, 43200000);
-//setInterval(function() { //1 hour loop
-//}, 3600000);
+setInterval(function() { //1 hour loop
+    if ((((new Date()).getHours()) == 6) || (((new Date()).getHours()) == 18)) {
+        loggedInList = []
+    }
+}, 3500000);
 
 // GETS YOUTUBE INFO EVERY "updateInterval" Milliseconds
 function crawl(anotherCallback) {
