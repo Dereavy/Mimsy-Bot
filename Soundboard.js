@@ -23,7 +23,8 @@ var sounds = [
     "22-Tada.mp3",
     "23-WhatchaSay.mp3",
     "24-SlowClap.wav",
-    "25-cheer.mp3"
+    "25-cheer.mp3",
+    "26-hi_my_name_is_Catrina.mp3"
 ];
 var notes = {
     "c1": "q",
@@ -78,6 +79,7 @@ module.exports = {
         message += " |  23- Whatcha Say                   |\n";
         message += " |  24- Slow Clap                     |\n";
         message += " |  25- Cheer                         |\n";
+        message += " |  26- Hi my name is Catrina!        |\n";
         message += "```";
         return message;
     },
@@ -89,7 +91,6 @@ module.exports = {
         message += "qwertyuiopasd\n";
         message += "```";
         return message;
-
     },
     playNote: function(letter) {
         var note = getKeyByValue(notes, letter)
