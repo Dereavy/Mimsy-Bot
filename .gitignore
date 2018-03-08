@@ -45,3 +45,5 @@ botToken.js
 WORM.png
 node_modules
 *.vs
+package-lock.json
+package.json
