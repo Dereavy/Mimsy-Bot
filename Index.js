@@ -667,10 +667,11 @@ bot.on('message', (message) => {
             var amount = Number((lowercasemessage.trim().split(/ +/g))[0])
             var userA = (lowercasemessage.trim().split(/ +/g))[1]
             var counter = 0;
+            message.delete(1000).catch(O_o => {});
             message.channel.fetchMessages({ limit: 99 }).then(mList => {
                 var firstround = mList.find(function(msg) {
-                    if (counter < amount) {
-                        if (msg.author.bot == false) {
+                    if (!(msg.author.bot)) {
+                        if (counter < amount) {
                             if (msg.author.tag == userA) {
                                 msg.delete(1000).catch(O_o => {});
                                 counter++;
@@ -685,7 +686,6 @@ bot.on('message', (message) => {
                                                 "text": "  Date cleared:"
                                             }
                                         }
-
                                     });
                                 }
                             } else {}
@@ -698,7 +698,6 @@ bot.on('message', (message) => {
             console.log(error)
             message.author.send(prefix + " clear **<number>** **<user>**");
         }
-        message.delete(1000).catch(O_o => {});
 
     }
 
