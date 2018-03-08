@@ -243,12 +243,12 @@ module.exports = {
             }
         }
     },
-    getSuggestionID: function(text) {
+    getSuggestionID: function(text) { // takes "suggestion: <number>"
         var args = text.trim().split(/ +/g);
         var regExKey = new RegExp("[0-9]*");
         for (var i = 0; i < args.length; i++) {
             if (regExKey.test(args[i])) {
-                return args[i];
+                return Number(args[1]);
             }
         }
     },
