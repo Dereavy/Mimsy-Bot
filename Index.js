@@ -33,16 +33,20 @@ const bot = new Discord.Client();
 const Cbot = new cleverbot({ key: Login.getCleverbotKey(), user: Login.getCleverbotUser(), nick: "MimsyAI" });
 
 /* CONFIGURATION */
+//Channels
 var logChannelID = "415987090480955392";
 const mimsyTalkChannelID = "390243354211909632";
 const soundboardChannelID = "414497480928133120";
 const testChannelID = "378315211607769089";
 const suggestionsChannelID = "418370942356684800";
-const YouTubeChannelID = "416757328528932875";
+const YouTubeChannelID = "416757328528932875"; //0xff0000
+const moderationChannelID = "419648648402436116";
+//Roles
 const flowerRoleID = "404647452201844736";
 const bananaRoleID = "325737032972238850";
 const followerRoleID = "418524770448048129";
 const noTagRoleID = "410461710332329985";
+//Owner
 const ownerID = "238825468864888833";
 //List channels where YT videos are allowed to be posted:
 const allowedYTChannelIDs = [378315211607769089, 317066233230917632, 343748288702578689, 311545553198645248];
@@ -653,7 +657,7 @@ bot.on('message', (message) => {
         sql.get(`SELECT * FROM subscribers WHERE userId = "${message.author.id}"`).then(row => {
             if (row) {
                 var dateSubscribed = row.joinDate;
-                console.log(row)
+                console.log(row);
                 return message.reply("You have been a subscriber since: " + dateSubscribed);
             } else {}
         })
@@ -666,10 +670,26 @@ bot.on('message', (message) => {
             message.channel.fetchMessages({ limit: 99 }).then(mList => {
                 var firstround = mList.find(function(msg) {
                     if (counter < amount) {
-                        if (msg.author.tag == userA) {
-                            msg.delete(1000).catch(O_o => {});
-                            counter++;
-                        } else {}
+                        if (msg.author.bot == false) {
+                            if (msg.author.tag == userA) {
+                                msg.delete(1000).catch(O_o => {});
+                                counter++;
+                                if (counter == amount) {
+                                    (bot.channels.get(moderationChannelID)).send({
+                                        "embed": {
+                                            "description": message.author.tag + " cleared " + amount + " messages from " + msg.author.tag + "\nChannel: " + msg.channel.name,
+                                            "color": 0xff0000,
+                                            "timestamp": new Date(),
+                                            "footer": {
+                                                "icon_url": message.member.icon_url,
+                                                "text": "  Date cleared:"
+                                            }
+                                        }
+
+                                    });
+                                }
+                            } else {}
+                        }
                     }
                     if (counter >= amount) { return false; }
                 });
@@ -679,6 +699,7 @@ bot.on('message', (message) => {
             message.author.send(prefix + " clear **<number>** **<user>**");
         }
         message.delete(1000).catch(O_o => {});
+
     }
 
     var lastID = " ";
