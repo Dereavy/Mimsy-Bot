@@ -40,7 +40,7 @@ const soundboardChannelID = "414497480928133120";
 const testChannelID = "378315211607769089";
 const suggestionsChannelID = "418370942356684800";
 const YouTubeChannelID = "416757328528932875"; //0xff0000
-const moderationChannelID = "419648648402436116";
+const moderationChannelID = "421701938195857438";
 //Roles
 const flowerRoleID = "404647452201844736";
 const bananaRoleID = "325737032972238850";
@@ -679,7 +679,7 @@ bot.on('message', (message) => {
                                     (bot.channels.get(moderationChannelID)).send({
                                         "embed": {
                                             "description": message.author.tag + " cleared " + amount + " messages from " + msg.author.tag + "\nChannel: " + msg.channel.name,
-                                            "color": 0xff0000,
+                                            "color": 0xe0e0e0,
                                             "timestamp": new Date(),
                                             "footer": {
                                                 "icon_url": message.member.icon_url,
@@ -709,7 +709,7 @@ bot.on('message', (message) => {
             (bot.channels.get(moderationChannelID)).send({
                 "embed": {
                     "description": "**" + message.author.tag + " warned " + userA + "**\n Reason: ```" + reason + "```\nChannel: " + message.channel.name,
-                    "color": 0xff0000,
+                    "color": 0xFFA500,
                     "timestamp": new Date(),
                     "footer": {
                         "icon_url": message.member.icon_url,
