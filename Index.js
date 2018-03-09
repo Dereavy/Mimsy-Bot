@@ -700,6 +700,36 @@ bot.on('message', (message) => {
         }
 
     }
+    if ((command == "warn") && (message.member.hasPermission("MANAGE_MESSAGES"))) {
+        message.delete(1000).catch(O_o => {});
+        var userA = (lowercasemessage.trim().split(/ +/g))[0];
+        var reason = lowercasemessage.slice(userA.length);
+
+        if (!(bot.users.find('tag', userA)).bot) {
+            (bot.channels.get(moderationChannelID)).send({
+                "embed": {
+                    "description": "**" + message.author.tag + " warned " + userA + "**\n Reason: ```" + reason + "```\nChannel: " + message.channel.name,
+                    "color": 0xff0000,
+                    "timestamp": new Date(),
+                    "footer": {
+                        "icon_url": message.member.icon_url,
+                        "text": "  Date warned:"
+                    }
+                }
+            });
+            (bot.users.find('tag', userA)).send({
+                "embed": {
+                    "description": "**You have been warned: **\n" + message.author.tag + " warned you: ```" + reason + "```\nChannel: " + message.channel.name,
+                    "color": 0xff0000,
+                    "timestamp": new Date(),
+                    "footer": {
+                        "icon_url": message.member.icon_url,
+                        "text": "  Date warned:"
+                    }
+                }
+            });
+        }
+    }
 
     var lastID = " ";
     if (command == "suggest") {
