@@ -3,6 +3,14 @@
 Read the wiki for more information on what the bot does:
 https://github.com/Lezappen/Mimsy-Bot/wiki
 
+Installation:
+  - Create channels and enter their corresponding ID's in the config
+  - Fill in the config with all other information
+  - Add botToken.js to the js folder, to fill it you will need:
+      - Discord Bot token
+      - Youtube API key + channel ID
+      - Cleverbot User ID and Key
+      
 botToken.js content:
 
         module.exports = {
