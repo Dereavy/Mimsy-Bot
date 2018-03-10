@@ -1,0 +1,45 @@
+    
+    
+    # Bot prefix
+        prefix: "!!"
+        
+    # ID of the owner of the server 
+        ownerID: "238825468864888833"
+        
+    # Log Channel - Channel Mimsy will log server inputs to.
+        logChannelID: "415987090480955392"
+
+    # Mimsy-Talk Channel - Channel where mimsy will respond to messages
+        mimsyTalkChannelID: "390243354211909632"
+
+    # Soundboard Channel
+        soundboardChannelID: "414497480928133120"
+
+    # Test Channel
+        testChannelID: "378315211607769089"
+
+    # Suggestions channel (only Mimsy should post here)
+        suggestionsChannelID: "418370942356684800"
+
+    # Streaming channel where new subscribers and stream information is announced
+        YouTubeChannelID: "416757328528932875"
+
+    # Moderation Log channel (only Mimsy should post here)
+        moderationChannelID: "421701938195857438"
+
+    # ROLES
+        flowerRoleID: "404647452201844736"
+
+        bananaRoleID: "325737032972238850"
+
+        followerRoleID: "418524770448048129"
+
+        noTagRoleID: "410461710332329985"
+
+
+
+    #List channels where YT videos are allowed to be posted:
+        allowedYTChannelIDs: [378315211607769089, 317066233230917632, 343748288702578689, 311545553198645248]
+
+    #Milliseconds between Youtube API requests.
+        updateInterval: 10000
