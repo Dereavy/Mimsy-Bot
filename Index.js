@@ -8,7 +8,6 @@ const Discord = require("discord.js");
 const AIntelli = require('ai-chatbot');
 var cleverbot = require("better-cleverbot-io");
 const sql = require("sqlite");
-
 var fs = require('fs');
 var path = require('path');
 var yaml = require('js-yaml');
@@ -140,7 +139,7 @@ bot.on('ready', () => {
 /* Chat */
 /*
 bot.on('messageReactionAdd', (reaction, user) => {
-    if ((reaction.message.channel.id == suggestionsChannelID) && (user.id == ownerID)) {
+    if ((reaction.message.channel.id == config.suggestionsChannelID) && (user.id == config.ownerID)) {
         if (reaction.emoji.identifier == "%E2%9C%85") {
             var newEmbed = new Discord.RichEmbed(reaction.message.embeds[0])
             var content  =?
