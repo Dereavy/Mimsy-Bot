@@ -4,19 +4,30 @@
 var getJSON = require('get-json');
 const util = require('util');
 var request = require("request")
-const Actions = require("./mimsyactions.js");
-const Soundboard = require("./Soundboard.js");
-//const music = require('discord.js-music-v11');
 const Discord = require("discord.js");
-const Animals = require("./chatanimals.js");
-const Rules = require("./rules.js");
-const Login = require('./botToken.js'); //Not included in the git file, see wiki for details.
 const AIntelli = require('ai-chatbot');
-const Hangman = require("./Hangman.js");
 var cleverbot = require("better-cleverbot-io");
 const sql = require("sqlite");
-//const commentsStream = require('youtube-comments-stream');
 
+var fs = require('fs');
+var path = require('path');
+var yaml = require('js-yaml');
+const Actions = require("./js/mimsyactions.js");
+const Soundboard = require("./js/Soundboard.js");
+const Animals = require("./js/chatanimals.js");
+const Rules = require("./js/rules.js");
+const Hangman = require("./js/Hangman.js");
+const Login = require('./js/botToken.js'); //Not included in the git file, see wiki for details.
+
+// load configuration
+try {
+    var filename = "./config.yml";
+    var contents = fs.readFileSync(filename, 'utf8');
+    var config = yaml.load(contents);
+    //console.log(util.inspect(data, false, 10, true));
+} catch (err) {
+    //console.log(err.stack || String(err));
+}
 /* INITIALISATION */
 
 sql.open("./sqlite/users.sqlite"); // (userId, points, level)
@@ -34,24 +45,7 @@ const Cbot = new cleverbot({ key: Login.getCleverbotKey(), user: Login.getClever
 
 /* CONFIGURATION */
 //Channels
-var logChannelID = "415987090480955392";
-const mimsyTalkChannelID = "390243354211909632";
-const soundboardChannelID = "414497480928133120";
-const testChannelID = "378315211607769089";
-const suggestionsChannelID = "418370942356684800";
-const YouTubeChannelID = "416757328528932875"; //0xff0000
-const moderationChannelID = "421701938195857438";
-//Roles
-const flowerRoleID = "404647452201844736";
-const bananaRoleID = "325737032972238850";
-const followerRoleID = "418524770448048129";
-const noTagRoleID = "410461710332329985";
-//Owner
-const ownerID = "238825468864888833";
-//List channels where YT videos are allowed to be posted:
-const allowedYTChannelIDs = [378315211607769089, 317066233230917632, 343748288702578689, 311545553198645248];
-const updateInterval = 10000; //Milliseconds between Youtube API requests.
-var prefix = "!!";
+
 
 /* YOUTUBE */
 const YT_API_KEY = Login.getYT_API_KEY();
@@ -115,13 +109,13 @@ function getVideoDetails(id, title) {
 function streamStatus(bool) {
     if (livestreamStatus != bool) {
         livestreamStatus = bool;
-        if (livestreamStatus == false) { bot.channels.get(YouTubeChannelID).send("Live stream has gone offline!"); }
+        if (livestreamStatus == false) { bot.channels.get(config.YouTubeChannelID).send("Live stream has gone offline!"); }
         if (livestreamStatus == true) {
-            bot.channels.get(YouTubeChannelID).send("  <@&" + followerRoleID + "> - **Live stream is now online!**\nJoin the stream ;)\nVideo: **" + VIDEO_TITLE + "**\nhttps://www.youtube.com/watch?v=" + VIDEO_ID + "Get notified: ` " + prefix + " subscribe `");
+            bot.channels.get(config.YouTubeChannelID).send("  <@&" + config.followerRoleID + "> - **Live stream is now online!**\nJoin the stream ;)\nVideo: **" + VIDEO_TITLE + "**\nhttps://www.youtube.com/watch?v=" + VIDEO_ID + "Get notified: ` " + config.prefix + " subscribe `");
         }
     }
 }
-setInterval(crawl, updateInterval);
+setInterval(crawl, config.updateInterval);
 
 
 function isLoggedIn(text) {
@@ -141,7 +135,7 @@ function isSubscribed(userID) {
 
 bot.on('ready', () => {
     bot.user.setActivity('with your mind!');
-    (bot.channels.get(suggestionsChannelID)).fetchMessages()
+    (bot.channels.get(config.suggestionsChannelID)).fetchMessages()
 });
 /* Chat */
 /*
@@ -161,7 +155,7 @@ function removeCircularReferences(obj) {
     for (const prop in obj) typeof obj[prop] === "object" && obj[prop] !== null && (objs.has(obj[prop]) ? delete obj[prop] : objs.set(obj[prop]));
 }
 bot.on('messageReactionAdd', (reaction, user) => {
-    if ((reaction.message.channel.id == suggestionsChannelID) && (user.id == ownerID)) {
+    if ((reaction.message.channel.id == config.suggestionsChannelID) && (user.id == ownerID)) {
         if (reaction.emoji.identifier == "%E2%9C%85") {
             let newEmbed = new Discord.RichEmbed(reaction.message.embeds[0]).setColor(0x006600);
             Object.values(newEmbed).forEach(v => { if (v && v.embed) delete(v.embed) });
@@ -173,10 +167,10 @@ bot.on('messageReactionAdd', (reaction, user) => {
             reaction.message.edit("", { embed: newEmbed });
         }
     }
-    if ((reaction.message.channel.id == suggestionsChannelID) && (typeof reaction.message.embeds[0] != "undefined")) {
+    if ((reaction.message.channel.id == config.suggestionsChannelID) && (typeof reaction.message.embeds[0] != "undefined")) {
         var suggestionOwnerTag = Actions.getUserTag(reaction.message.embeds[0]["footer"]["text"]);
     }
-    if ((reaction.message.channel.id == suggestionsChannelID) && (user.tag == suggestionOwnerTag)) {
+    if ((reaction.message.channel.id == config.suggestionsChannelID) && (user.tag == suggestionOwnerTag)) {
         if (reaction.emoji.identifier == "%E2%9D%8C") {
             reaction.message.delete(1000).catch(O_o => {});
         }
@@ -184,17 +178,17 @@ bot.on('messageReactionAdd', (reaction, user) => {
 });
 bot.on('message', (message) => {
     if (message.author.bot) {
-        if (message.channel.id == suggestionsChannelID) {}
+        if (message.channel.id == config.suggestionsChannelID) {}
         return;
     }
     var lowercaseMessage = message.content.toLowerCase();
-    var logChannel = bot.channels.get(logChannelID);
+    var logChannel = bot.channels.get(config.logChannelID);
     var spacer = "";
     var d = new Date();
     var date = "`" + d.getDate() + "/" + d.getMonth() + "/" + d.getFullYear() + "-`_`" + d.getHours() + ":" + d.getMinutes() + ":" + d.getSeconds() + "`_";
     const prefixCheck = message.content.trim().split(/ +/g)[0];
-    if (prefix == prefixCheck) {
-        const args = message.content.slice(prefix.length).trim().split(/ +/g);
+    if (config.prefix == prefixCheck) {
+        const args = message.content.slice(config.prefix.length).trim().split(/ +/g);
         const precommand = args[0];
         var command = args.shift().toLowerCase();
         var lowercasemessage = "";
@@ -221,8 +215,8 @@ bot.on('message', (message) => {
         var loggedMessage = "" + date + " " + "**[PM]** " + spacer + " " + message.author.username + "#" + message.author.discriminator + ": _`" + message.content + "`_";
         logChannel.send(loggedMessage);
         if (command == "respond") { message.author.send("Hello") }
-        if (command == "hangman") { message.author.send(Hangman.help(prefix)) }
-        if ((command == "hm") && (lowercasemessage == "")) { message.author.send(Hangman.help(prefix)) }
+        if (command == "hangman") { message.author.send(Hangman.help(config.prefix)) }
+        if ((command == "hm") && (lowercasemessage == "")) { message.author.send(Hangman.help(config.prefix)) }
 
         function hangmanPlayer() {
             return sql.get(
@@ -331,11 +325,11 @@ bot.on('message', (message) => {
     if (isLoggedIn(message.author.id) == false) {
         loggedInList.push(message.author.id);
         var hasNoRank = true;
-        if (message.member.roles.has(flowerRoleID)) {
+        if (message.member.roles.has(config.flowerRoleID)) {
             message.react(Actions.randomFlowerShortcut());
             hasRank();
         }
-        if (message.member.roles.has(bananaRoleID)) {
+        if (message.member.roles.has(config.bananaRoleID)) {
             message.react('\uD83C\uDF4C');
             hasRank();
         }
@@ -346,7 +340,7 @@ bot.on('message', (message) => {
 
     // Cleverbot Integration
     if (Actions.mimsyVerify(lowercaseMessage) == true) {
-        if (message.channel.id == mimsyTalkChannelID) {
+        if (message.channel.id == config.mimsyTalkChannelID) {
             Cbot.create(function(err, MimsyAI) {
                 Cbot.ask(lowercaseMessage, function(err, response) {
                     message.channel.send(response); // Will likely be: "Living in a lonely world"
@@ -357,7 +351,7 @@ bot.on('message', (message) => {
 
     //Remove Youtube links from unwanted channels
     if (Actions.containsYoutube(lowercaseMessage) == true) {
-        if (Actions.allowedYoutube(message.channel.id, allowedYTChannelIDs) == false) {
+        if (Actions.allowedYoutube(message.channel.id, config.allowedYTChannelIDs) == false) {
             message.delete(1000).catch(O_o => {}); //Supposed to delete message
             message.author.sendMessage("I see you tried to post a video in the wrong section.\nPlease only post youtube links in the #media section of Lezappen's discord here:\n\n https://discord.gg/ZDHUfWH")
         }
@@ -365,7 +359,7 @@ bot.on('message', (message) => {
 
     //Stop players with the no tag role from tagging Lezappen.
     if (Actions.containsLezTag(lowercaseMessage)) {
-        if (message.member.roles.has(noTagRoleID)) {
+        if (message.member.roles.has(config.noTagRoleID)) {
             message.delete(1000).catch(O_o => {}); //Supposed to delete message
             message.author.sendMessage("I see you tried to tag Lezappen? How about no?")
         }
@@ -383,15 +377,15 @@ bot.on('message', (message) => {
 
     if (lowercaseMessage == 'mimsy') {
         var helpMsg = 'Hi! So far you can only use these commands: ``` ping ```\n';
-        helpMsg += 'Commands followed by my prefix => `' + prefix + '`:``` ';
+        helpMsg += 'Commands followed by my prefix => `' + config.prefix + '`:``` ';
         helpMsg += '\nCommands:\n ';
-        helpMsg += prefix + 'suggest <suggestion for Mimsy development>\n ';
-        helpMsg += prefix + '(un)follow/(un)subscribe Toggle notifications for new streams, become a subscriber!\n ';
-        helpMsg += prefix + 'followDate Get the date when you first subscribed\n ';
+        helpMsg += config.prefix + 'suggest <suggestion for Mimsy development>\n ';
+        helpMsg += config.prefix + '(un)follow/(un)subscribe Toggle notifications for new streams, become a subscriber!\n ';
+        helpMsg += config.prefix + 'followDate Get the date when you first subscribed\n ';
         helpMsg += '\nFun Commands:\n ';
-        helpMsg += prefix + 'Fact\n ' + prefix + 'ai <message directed to the ai>\n ' + prefix + 'video\n ';
+        helpMsg += config.prefix + 'Fact\n ' + config.prefix + 'ai <message directed to the ai>\n ' + config.prefix + 'video\n ';
         helpMsg += '\nVoice Channel: \n ';
-        helpMsg += prefix + 'Summon\n ' + prefix + 'Dismissed' + '```';
+        helpMsg += config.prefix + 'Summon\n ' + config.prefix + 'Dismissed' + '```';
         message.channel.send(helpMsg);
     }
     if (lowercaseMessage == 'i am dutch') {
@@ -478,7 +472,7 @@ bot.on('message', (message) => {
     }
 
     //Soundboard
-    if (message.channel.id == soundboardChannelID) {
+    if (message.channel.id == config.soundboardChannelID) {
         if (command == "sb") {
             if (lowercasemessage == "help") {
                 message.author.sendMessage(Soundboard.getTutorial());
@@ -490,12 +484,12 @@ bot.on('message', (message) => {
                     })
                     .catch(console.error);
             }
-            if (message.author.id == ownerID) {
+            if (message.author.id == config.ownerID) {
                 message.delete(1000).catch(O_o => {});
             }
             message.delete(1000).catch(O_o => {});
         }
-        if (message.author.id != ownerID) {
+        if (message.author.id != config.ownerID) {
             message.delete(1000).catch(O_o => {});
         }
     }
@@ -560,7 +554,7 @@ bot.on('message', (message) => {
         message.author.send('Hello, you asked me to send you this random video:\n' + Actions.randomVideoURL());
     }
 
-    if ((command == "test") && (message.channel.id == testChannelID)) {
+    if ((command == "test") && (message.channel.id == config.testChannelID)) {
         //Function to be tested
         // (`SELECT * FROM subscribers WHERE userId = "${message.author.id}"`) == row == {userId:'string', points:'integer'}
         /*
@@ -599,13 +593,13 @@ bot.on('message', (message) => {
         });
     }
     if ((command == "follow") || (command == "subscribe")) {
-        message.member.addRole(followerRoleID);
+        message.member.addRole(config.followerRoleID);
         message.author.send("Thank you for subscribing!");
         message.delete(1000).catch(O_o => {});
         sql.get(`SELECT * FROM subscribers WHERE userId = "${message.author.id}"`).then(row => {
             if (!row) { // Can't find the row.
                 sql.run("INSERT INTO subscribers (userId, joinDate, points) VALUES (?, DATETIME DEFAULT CURRENT_TIMESTAMP, ?)", [message.author.id, 10]).then(() => {
-                    (bot.channels.get(YouTubeChannelID)).send({
+                    (bot.channels.get(config.YouTubeChannelID)).send({
                         "embed": {
                             "description": "\uD83C\uDF89 Congratulations to **" + message.member.displayName + "#" + message.author.discriminator + "** for becoming a new subscriber! \uD83C\uDF88",
                             "color": 5834442,
@@ -628,7 +622,7 @@ bot.on('message', (message) => {
                 console.log("created table, adding user");
             });
             console.log("sending message to suggestions channel");
-            (bot.channels.get(YouTubeChannelID)).send({
+            (bot.channels.get(config.YouTubeChannelID)).send({
                 "embed": {
                     "description": "\uD83C\uDF89 Congratulations to **" + message.member.displayName + "#" + message.author.discriminator + "** for becoming a new subscriber! \uD83C\uDF88",
                     "color": 5834442,
@@ -642,7 +636,7 @@ bot.on('message', (message) => {
         });
     }
     if ((command == "unfollow") || (command == "unsubscribe")) {
-        message.member.removeRole(followerRoleID);
+        message.member.removeRole(config.followerRoleID);
         message.author.send("You are now unsubscribed");
         sql.get(`SELECT * FROM subscribers WHERE userId = "${message.author.id}"`).then(row => {
             if (!row) {
@@ -653,7 +647,7 @@ bot.on('message', (message) => {
             message.delete(1000).catch(O_o => {});
         });
     }
-    if ((command == "followdate") && (message.member.roles.has(followerRoleID))) {
+    if ((command == "followdate") && (message.member.roles.has(config.followerRoleID))) {
         sql.get(`SELECT * FROM subscribers WHERE userId = "${message.author.id}"`).then(row => {
             if (row) {
                 var dateSubscribed = row.joinDate;
@@ -676,7 +670,7 @@ bot.on('message', (message) => {
                                 msg.delete(1000).catch(O_o => {});
                                 counter++;
                                 if (counter == amount) {
-                                    (bot.channels.get(moderationChannelID)).send({
+                                    (bot.channels.get(config.moderationChannelID)).send({
                                         "embed": {
                                             "description": message.author.tag + " cleared " + amount + " messages from " + msg.author.tag + "\nChannel: " + msg.channel.name,
                                             "color": 0xe0e0e0,
@@ -696,7 +690,7 @@ bot.on('message', (message) => {
             });
         } catch (error) {
             console.log(error)
-            message.author.send(prefix + " clear **<number>** **<user>**");
+            message.author.send(config.prefix + " clear **<number>** **<user>**");
         }
 
     }
@@ -706,7 +700,7 @@ bot.on('message', (message) => {
         var reason = lowercasemessage.slice(userA.length);
 
         if (!(bot.users.find('tag', userA)).bot) {
-            (bot.channels.get(moderationChannelID)).send({
+            (bot.channels.get(config.moderationChannelID)).send({
                 "embed": {
                     "description": "**" + message.author.tag + " warned " + userA + "**\n Reason: ```" + reason + "```\nChannel: " + message.channel.name,
                     "color": 0xFFA500,
@@ -734,7 +728,7 @@ bot.on('message', (message) => {
     var lastID = " ";
     if (command == "suggest") {
         message.delete(1000).catch(O_o => {});
-        var suggestionChannel = bot.channels.get(suggestionsChannelID);
+        var suggestionChannel = bot.channels.get(config.suggestionsChannelID);
         //get ID of last message:
         suggestionChannel.fetchMessages({ limit: 5 }).then(messageList => {
             var collection = messageList.find(function(m) {
@@ -799,7 +793,7 @@ bot.on('message', (message) => {
         var args = lowercasemessage.trim().split(/ +/g);
         var messageID = Number(args[0]);
         var comment = "     >   `" + lowercasemessage.slice(args[0].length) + "`";
-        (bot.channels.get(suggestionsChannelID)).fetchMessages({ limit: 99 }).then(messageList => {
+        (bot.channels.get(config.suggestionsChannelID)).fetchMessages({ limit: 99 }).then(messageList => {
             var retrievedMsg = messageList.find(function(m) {
                 var msg = m.channel.messages.find(function(ret) {
                     if (Actions.getSuggestionID(ret.embeds[0]["title"]) === messageID) {
@@ -855,7 +849,7 @@ bot.on('message', (message) => {
     process.on("unhandledRejection", (reason, p) => {
         //console.error("Unhandled Rejection at: Promise", p, "reason:", reason);
     });
-    if (!message.content.startsWith(prefix)) { return 0; }
+    if (!message.content.startsWith(config.prefix)) { return 0; }
     var oldmessage = lowercasemessage;
 });
 
