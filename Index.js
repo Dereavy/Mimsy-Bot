@@ -38,13 +38,10 @@ var VIDEO_ID = "";
 var VIDEO_TITLE = "";
 var loggedInList = []; //List of users that have logged in this mimsy day!
 var tempSub = []; // List of people having executed the follow command
+var liveStreamCooldown = false; // Avoids posting double announcements
 var activeVoiceChannel = ""; //Voice Channel the bot is currently in, prevents a user from summoning the bot multiple times to the same channel.
 const bot = new Discord.Client();
 const Cbot = new cleverbot({ key: Login.getCleverbotKey(), user: Login.getCleverbotUser(), nick: "MimsyAI" });
-
-/* CONFIGURATION */
-//Channels
-
 
 /* YOUTUBE */
 const YT_API_KEY = Login.getYT_API_KEY();
@@ -59,11 +56,12 @@ setInterval(function() { //12 hour loop
     console.log('It\'s a new beautifull day!');
     tempSub = []; //Players can reuse the 'follow' command 
 }, 43200000);
-setInterval(function() { //1 hour loop
+setInterval(function() { //2 hour loop
     if ((((new Date()).getHours()) == 6) || (((new Date()).getHours()) == 18)) {
         loggedInList = []
+        liveStreamCooldown = false;
     }
-}, 3500000);
+}, 7200000);
 
 // GETS YOUTUBE INFO EVERY "updateInterval" Milliseconds
 function crawl(anotherCallback) {
@@ -102,7 +100,9 @@ function crawl(anotherCallback) {
 function getVideoDetails(id, title) {
     VIDEO_TITLE = title;
     VIDEO_ID = id;
-    streamStatus(true);
+    if (liveStreamCooldown == false) {
+        streamStatus(true);
+    }
 }
 
 function streamStatus(bool) {
@@ -110,7 +110,14 @@ function streamStatus(bool) {
         livestreamStatus = bool;
         if (livestreamStatus == false) { bot.channels.get(config.YouTubeChannelID).send("Live stream has gone offline!"); }
         if (livestreamStatus == true) {
-            bot.channels.get(config.YouTubeChannelID).send("  <@&" + config.followerRoleID + "> - **Live stream is now online!**\nJoin the stream ;)\nVideo: **" + VIDEO_TITLE + "**\nhttps://www.youtube.com/watch?v=" + VIDEO_ID + "Get notified: ` " + config.prefix + " subscribe `");
+            liveStreamCooldown = true;
+            bot.guilds.get(config.serverID).roles.get(config.followerRoleID).setMentionable(true)
+                .then(updated => console.log(`@subscribers mention enabled`))
+                .catch(console.error);
+            bot.channels.get(config.YouTubeChannelID).send( /*"  <@&" + config.followerRoleID + ">*/ " - **Live stream is now online!**\nJoin the stream ;)\nVideo: **" + VIDEO_TITLE + "**\nhttps://www.youtube.com/watch?v=" + VIDEO_ID + "Get notified: ` " + config.prefix + " subscribe `");
+            bot.guilds.get(config.serverID).roles.get(config.followerRoleID).setMentionable(false)
+                .then(updated => console.log(`Subscribers pinged, @subscribers mention disabled`))
+                .catch(console.error);
         }
     }
 }
@@ -242,6 +249,7 @@ bot.on('message', (message) => {
             console.log(Hangman.startGame(message.author.id, newWord)); //doesn't work (not expected to)
             message.author.send(Hangman.getMessage(newWord, "", 2));
         }
+
         /* new hangman user:
                 sql.run(
                     "INSERT INTO hangman (User_ID, Session_Status, Word, Guess_List, Hint, Difficulty, Total_Points) VALUES (?, ?, ?, ?, ?, ?, ?)",
@@ -378,13 +386,18 @@ bot.on('message', (message) => {
         var helpMsg = 'Hi! So far you can only use these commands: ``` ping ```\n';
         helpMsg += 'Commands followed by my prefix => `' + config.prefix + '`:``` ';
         helpMsg += '\nCommands:\n ';
-        helpMsg += config.prefix + 'suggest <suggestion for Mimsy development>\n ';
-        helpMsg += config.prefix + '(un)follow/(un)subscribe Toggle notifications for new streams, become a subscriber!\n ';
-        helpMsg += config.prefix + 'followDate Get the date when you first subscribed\n ';
+        helpMsg += config.prefix + ' Suggest <suggestion for Mimsy development>\n ';
+        helpMsg += config.prefix + ' (Un)Follow/(un)subscribe Toggle notifications for new streams, become a subscriber!\n ';
+        helpMsg += config.prefix + ' FollowDate Get the date when you first subscribed\n ';
         helpMsg += '\nFun Commands:\n ';
-        helpMsg += config.prefix + 'Fact\n ' + config.prefix + 'ai <message directed to the ai>\n ' + config.prefix + 'video\n ';
+        helpMsg += config.prefix + ' Fact\n ';
+        //helpMsg += config.prefix+' + ai < message directed to the ai > \n ' --Broken--
+        helpMsg += config.prefix + ' Video\n ';
         helpMsg += '\nVoice Channel: \n ';
-        helpMsg += config.prefix + 'Summon\n ' + config.prefix + 'Dismissed' + '```';
+        helpMsg += config.prefix + ' Summon\n '
+        helpMsg += config.prefix + ' Dismissed\n ';
+        helpMsg += config.prefix + ' Sb <sound> (requires soundboard access)\n ';
+        helpMsg += '```';
         message.channel.send(helpMsg);
     }
     if (lowercaseMessage == 'i am dutch') {
@@ -452,7 +465,7 @@ bot.on('message', (message) => {
                 })
                 .catch(console.error);
         } else {
-            message.author.sendMessage('Hello, I wasn\'t able to join you :/\nFor the `Summon` command to work, you need to be in a voice channel.\nYou cannot summon me to a voice channel I\'m already in.');
+            message.author.sendMessage('Hello, I wasn\'t able to join you :/\nFor the `' + config.prefix + ' Summon` command to work, you need to be in a voice channel.\nYou cannot summon me to a voice channel I\'m already in.');
         }
     }
     //Dismiss Mimsy from channel
