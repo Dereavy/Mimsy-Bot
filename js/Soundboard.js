@@ -66,7 +66,6 @@ module.exports = {
         message += " |  5-  In Bird Culture...            |\n";
         message += " |  6-  JOJO - OHNOOOOO!              |\n";
         message += " |  7-  JOOOOOOOJO!                   |\n";
-        message += " |  8-  Oh Baby a Triple!             |\n";
         message += " |  9-  Omae Wa Mou Shindeiru         |\n";
         message += " |  10- Prepare to be astonished..    |\n";
         message += " |  11- Riggity Recked                |\n";
@@ -90,7 +89,6 @@ module.exports = {
         message += " |  29- Leekspin                      |\n";
         message += " |  30- Whats gibby thinking about    |\n";
         message += " |  31- Normies get out               |\n";
-
 
         message += "```";
         return message;
