@@ -2,6 +2,9 @@
     
 # Bot prefix
     prefix: "!!"
+
+# Server ID
+    serverID: "269812518002753537"
     
 # ID of the owner of the server 
     ownerID: "238825468864888833"
