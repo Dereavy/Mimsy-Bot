@@ -29,7 +29,13 @@ var sounds = [
     "28-We_Need_Some_Chicken_Up_In_Here.mp3",
     "29-Leekspin.mp3",
     "30-Whats_gibby_thinking_about.mp3",
-    "31-Normies_get_out.mp3"
+    "31-Normies_get_out.mp3",
+    "32-That_was_legitness.mp3",
+    "33-Im_A_Banana.mp3",
+    "34-Fatality.mp3",
+    "35-Burns_excellent.mp3",
+    "36-Cuek.mp3",
+    "37-lalalalala.mp3"
 ];
 var notes = {
     "c1": "q",
@@ -89,7 +95,12 @@ module.exports = {
         message += " |  29- Leekspin                      |\n";
         message += " |  30- Whats gibby thinking about    |\n";
         message += " |  31- Normies get out               |\n";
-
+        message += " |  32- That was legitness            |\n";
+        message += " |  33- Im a banana                   |\n";
+        message += " |  34- Fatality                      |\n";
+        message += " |  35- Burns excellent               |\n";
+        message += " |  36- Cuek!                         |\n";
+        message += " |  37- Lalalalala                    |\n";
         message += "```";
         return message;
     },

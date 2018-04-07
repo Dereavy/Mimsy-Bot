@@ -155,35 +155,7 @@ module.exports = {
     spongeMemify: function(text) {
         return spongeMeme(text);
     },
-    filter: function(text) {
-        var A_array = ['a', 'A'];
-        var B_array = ['b', 'B'];
-        var C_array = ['c', 'C'];
-        var D_array = ['d', 'D'];
-        var E_array = ['e', 'E'];
-        var F_array = ['f', 'F'];
-        var G_array = ['g', 'G'];
-        var H_array = ['h', 'H', 'hh'];
-        var I_array = ['i', 'I'];
-        var J_array = ['j', 'J'];
-        var K_array = ['k', 'K'];
-        var L_array = ['l', 'L'];
-        var M_array = ['m', 'M'];
-        var N_array = ['n', 'N'];
-        var O_array = ['o', 'O', 'Ω'];
-        var P_array = ['p', 'P'];
-        var Q_array = ['q', 'Q'];
-        var R_array = ['r', 'R'];
-        var S_array = ['s', 'S'];
-        var T_array = ['t', 'T'];
-        var U_array = ['u', 'U'];
-        var V_array = ['v', 'V'];
-        var W_array = ['w', 'W'];
-        var X_array = ['x', 'X'];
-        var Y_array = ['y', 'Y'];
-        var Z_array = ['z', 'Z'];
-        return "Sorry, not available right now!";
-    },
+
     encodeUTF: function encode_utf8(s) {
         console.log(unescape(encodeURIComponent(s)))
         return unescape(encodeURIComponent(s));
@@ -210,7 +182,7 @@ module.exports = {
         return test;
     },
     containsHello: function(message) {
-        var regExKey = new RegExp("^(h((ay)|(ola)|(ello)|i))|(ay{1,10}e)");
+        var regExKey = new RegExp("^(h((ay)|(ola)|(ello)|i))|((\s|^)ay{1,10}e)");
         var regExpTest = regExKey.test(message) ? true : false;
         return regExpTest;
     },

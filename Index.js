@@ -114,7 +114,7 @@ function streamStatus(bool) {
             bot.guilds.get(config.serverID).roles.get(config.followerRoleID).setMentionable(true)
                 .then(updated => console.log(`@subscribers mention enabled`))
                 .catch(console.error);
-            bot.channels.get(config.YouTubeChannelID).send( /*"  <@&" + config.followerRoleID + ">*/ " - **Live stream is now online!**\nJoin the stream ;)\nVideo: **" + VIDEO_TITLE + "**\nhttps://www.youtube.com/watch?v=" + VIDEO_ID + "Get notified: ` " + config.prefix + " subscribe `");
+            bot.channels.get(config.YouTubeChannelID).send("  <@&" + config.followerRoleID + ">  - ** Live stream is now online! ** \nJoin the stream ;)\nVideo: ** " + VIDEO_TITLE + " ** \nhttps://www.youtube.com/watch?v=" + VIDEO_ID + "\nGet notified: ` " + config.prefix + " subscribe `");
             bot.guilds.get(config.serverID).roles.get(config.followerRoleID).setMentionable(false)
                 .then(updated => console.log(`Subscribers pinged, @subscribers mention disabled`))
                 .catch(console.error);
