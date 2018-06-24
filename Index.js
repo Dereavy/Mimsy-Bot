@@ -33,6 +33,7 @@ sql.open("./sqlite/users.sqlite"); // (userId, points, level)
 sql.open("./sqlite/hangman.sqlite"); // (User_ID, Session_Status, Word, Guess_List, Hint, Difficulty, Total_Points)
 sql.open("./sqlite/subscribers.sqlite"); // (User_ID, joinDate, loyaltyPoints)
 sql.open("./sqlite/suggestions.sqlite"); // (messageID, User_ID)
+sql.open("./medals.sqlite");
 var livestreamStatus = false;
 var VIDEO_ID = "";
 var VIDEO_TITLE = "";
@@ -114,7 +115,7 @@ function streamStatus(bool) {
             bot.guilds.get(config.serverID).roles.get(config.followerRoleID).setMentionable(true)
                 .then(updated => console.log(`@subscribers mention enabled`))
                 .catch(console.error);
-            bot.channels.get(config.YouTubeChannelID).send("  <@&" + config.followerRoleID + ">  - ** Live stream is now online! ** \nJoin the stream ;)\nVideo: ** " + VIDEO_TITLE + " ** \nhttps://www.youtube.com/watch?v=" + VIDEO_ID + "\nGet notified: ` " + config.prefix + " subscribe `");
+            bot.channels.get(config.YouTubeChannelID).send("  <@&" + config.followerRoleID + ">  - ** Live stream is now online! ** \n_Join the stream !_\n\nVideo:\nhttps://www.youtube.com/watch?v=" + VIDEO_ID + "\n_`Get notified:  " + config.prefix + " subscribe`_\n\n**" + VIDEO_TITLE + "**");
             bot.guilds.get(config.serverID).roles.get(config.followerRoleID).setMentionable(false)
                 .then(updated => console.log(`Subscribers pinged, @subscribers mention disabled`))
                 .catch(console.error);
@@ -138,11 +139,11 @@ function isSubscribed(userID) {
     return false;
 }
 
-
 bot.on('ready', () => {
     bot.user.setActivity('with your mind!');
     (bot.channels.get(config.suggestionsChannelID)).fetchMessages()
 });
+
 /* Chat */
 /*
 bot.on('messageReactionAdd', (reaction, user) => {
@@ -160,6 +161,57 @@ function removeCircularReferences(obj) {
     const objs = new Map;
     for (const prop in obj) typeof obj[prop] === "object" && obj[prop] !== null && (objs.has(obj[prop]) ? delete obj[prop] : objs.set(obj[prop]));
 }
+/** Database Functions */
+
+async function addGoodBoi(userID, amount) { //Adds points to those deserving bois
+    points = Number(amount);
+    sql.get(`SELECT * FROM medals WHERE userId ="${userID}"`).then(row => {
+        if (!row) {
+            sql.run("INSERT INTO medals (userId, points) VALUES (?, ?)", [userID, points]);
+            console.log(points + ' points added! (new row in existing table)');
+        } else {
+            sql.run(`UPDATE medals SET points = ${row.points + points} WHERE userId = ${userID}`);
+            console.log(points + ' points added! (existing row in existing table)');
+        }
+    }).catch(() => {
+        console.error;
+        sql.run("CREATE TABLE IF NOT EXISTS medals (userId TEXT, points INTEGER)").then(() => {
+            sql.run("INSERT INTO medals (userId, points) VALUES (?, ?)", [userID, points]);
+            console.log(points + ' points added! (new table created)');
+        });
+    });
+};
+
+function getGoodBoi(userID, channel) { //Gets score of user.
+    //return new Promise((resolve, reject) => {
+    sql.get(`SELECT * FROM medals WHERE userId ="${userID}"`).then(row => {
+        if (!row) {
+            console.log("No row, retrieving points of user" + userID + "anyways, retrieved:" + row.points);
+            return 0;
+        };
+        //console.log("Retrieving points of user " + userID + " retrieved: " + row.points);
+        channel.send("<@" + userID + "> has " + row.points + " " + config.points + "!");
+        return row.points;
+    });
+    //});
+}
+
+async function getBestBois(channel) { //Returns best bois!
+    var sndMsg = "";
+    sql.all('SELECT userId,points FROM medals ORDER BY points DESC LIMIT ' + config.TopPlayers).then(rows => {
+        rows.forEach(function(brow) {
+            sndMsg += "\n";
+            sndMsg += '<@' + brow.userId + '> has ' + brow.points + " " + config.points;
+            sndMsg += "\n\n";
+            for (var i = 0; i < brow.points; i++) {
+                sndMsg += "<:medal:460520365026836501>";
+            }
+            sndMsg += "\n";
+        })
+        channel.send(sndMsg);
+    });
+}
+
 bot.on('messageReactionAdd', (reaction, user) => {
     if ((reaction.message.channel.id == config.suggestionsChannelID) && (user.id == config.ownerID)) {
         if (reaction.emoji.identifier == "%E2%9C%85") {
@@ -180,6 +232,9 @@ bot.on('messageReactionAdd', (reaction, user) => {
         if (reaction.emoji.identifier == "%E2%9D%8C") {
             reaction.message.delete(1000).catch(O_o => {});
         }
+    }
+    if ((user.id == config.ownerID) && (reaction.emoji.identifier == "%E2%98%A0")) {
+        reaction.message.delete(1000).catch(O_o => {});
     }
 });
 bot.on('message', (message) => {
@@ -393,6 +448,7 @@ bot.on('message', (message) => {
         helpMsg += config.prefix + ' Fact\n ';
         //helpMsg += config.prefix+' + ai < message directed to the ai > \n ' --Broken--
         helpMsg += config.prefix + ' Video\n ';
+        helpMsg += config.prefix + ' SM <message> (SM = Spongebob Meme: Mockbob) the message for you\n ';
         helpMsg += '\nVoice Channel: \n ';
         helpMsg += config.prefix + ' Summon\n '
         helpMsg += config.prefix + ' Dismissed\n ';
@@ -542,7 +598,7 @@ bot.on('message', (message) => {
     //Sponge Meme
     if (command == "sm") {
         message.delete(1000).catch(O_o => {}); //Supposed to delete message
-        message.channel.send(Actions.spongeMemify(lowercasemessage));
+        message.channel.send(message.author.tag + ": " + config.mockbob + Actions.spongeMemify(lowercasemessage) + config.mockbob);
     }
 
     //I have no idea what this does anymore
@@ -567,6 +623,7 @@ bot.on('message', (message) => {
     }
 
     if ((command == "test") && (message.channel.id == config.testChannelID)) {
+
         //Function to be tested
         // (`SELECT * FROM subscribers WHERE userId = "${message.author.id}"`) == row == {userId:'string', points:'integer'}
         /*
@@ -590,6 +647,7 @@ bot.on('message', (message) => {
         }); */
 
     }
+
 
     if (command == "level") {
         sql.get(`SELECT * FROM users WHERE userId ="${message.author.id}"`).then(row => {
@@ -801,6 +859,28 @@ bot.on('message', (message) => {
      * const id = Actions.getUserTag(msg.embeds[0].title);
      * const newMsg = messages.find(m => m.id === id);
      */
+    if (message.author.id == config.ownerID) { // OWNER COMMANDS
+
+        var lechannel = message.channel;
+
+        function getArg(number) {
+            return message.content.trim().split(/ /g)[number + 1];
+        }
+        if (command == config.addPoints.toLowerCase()) {
+            var goodBoiName = getArg(1);
+            var goodBoiID = getArg(1).slice(2, getArg(1).length - 1);
+            var goodBoiAmnt = Number(getArg(2));
+            addGoodBoi(goodBoiID, goodBoiAmnt);
+            message.channel.send("<:medal:460520365026836501> Congratulations to <@" + goodBoiID + "> for gaining " + goodBoiAmnt + " " + config.points + "! <:medal:460520365026836501>");
+        }
+
+        if (command == "top" + config.points) {
+            getBestBois(lechannel);
+        }
+        if (command == "get" + config.points) {
+            getGoodBoi(message.author.id, lechannel);
+        }
+    }
     if (command == "comment") {
         var args = lowercasemessage.trim().split(/ +/g);
         var messageID = Number(args[0]);
