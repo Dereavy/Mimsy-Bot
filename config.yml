@@ -42,7 +42,19 @@
 
 
 #List channels where YT videos are allowed to be posted:
-    allowedYTChannelIDs: [378315211607769089, 317066233230917632, 343748288702578689, 311545553198645248]
+    allowedYTChannelIDs: [378315211607769089, 317066233230917632, 343748288702578689, 311545553198645248, 441680626869993472]
 
 #Milliseconds between Youtube API requests.
     updateInterval: 10000
+
+#Emojis
+    mockbob: <:mockbob:378998241787641866>
+
+#- Specify number of top players you want to display for medals
+    TopPlayers: 3
+
+#- Specify the name of the currency you want to give (Medals by default) This changes the !getpoints / !addpoints command to !addmedals/!getmedals
+    points: "medals"
+
+#- Specify main command to add rewards to users (prefix + addPoints + user + amount)
+    addPoints: "medal"
