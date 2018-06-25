@@ -166,6 +166,9 @@ function removeCircularReferences(obj) {
 sql.open("./sqlite/medals.sqlite"); // (userId, points)
 function addGoodBoi(userID, amount, channel) { //Adds points to those deserving bois
     var points = Number(amount);
+    if (userID[0] == "!") {
+        userID = slice(1, userID.length - 1);
+    }
     sql.get(`SELECT * FROM medals WHERE userId ="${userID}"`).then(row => {
         if (!row) {
             sql.run("INSERT INTO medals (userId, points) VALUES (?, ?)", [userID, points]);
@@ -214,6 +217,14 @@ function getBestBois(channel) { //Returns best bois!
     });
 }
 
+function getAllBois(channel) { //Returns best bois!
+    var sndMsg = "";
+    sql.all('SELECT userId,points FROM medals ORDER BY points DESC').then(rows => {
+        rows.forEach(function(brow) {
+            console.log(brow.userId + " - " + brow.points)
+        })
+    });
+}
 bot.on('messageReactionAdd', (reaction, user) => {
     if ((reaction.message.channel.id == config.suggestionsChannelID) && (user.id == config.ownerID)) {
         if (reaction.emoji.identifier == "%E2%9C%85") {
@@ -305,6 +316,9 @@ bot.on('message', (message) => {
     }
     if (command == "get" + config.points) {
         getGoodBoi(message.author.id, message.channel);
+    }
+    if (command == "getall" + config.points) {
+        getAllBois(message.channel);
     }
     //PRIVATE MESSAGES
     if (message.channel.type == "dm") {
