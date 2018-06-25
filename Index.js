@@ -163,7 +163,56 @@ function removeCircularReferences(obj) {
 }
 /** Database Functions */
 
+sql.open("./sqlite/medals.sqlite"); // (userId, points)
+function addGoodBoi(userID, amount, channel) { //Adds points to those deserving bois
+    var points = Number(amount);
+    sql.get(`SELECT * FROM medals WHERE userId ="${userID}"`).then(row => {
+        if (!row) {
+            sql.run("INSERT INTO medals (userId, points) VALUES (?, ?)", [userID, points]);
+            console.log(points + ' points added! (new row in existing table)');
+        } else {
+            sql.run(`UPDATE medals SET points = ${row.points + points} WHERE userId = ${userID}`);
+            console.log(points + ' points added! (existing row in existing table)');
+        }
+    }).catch(() => {
+        console.error;
+        sql.run("CREATE TABLE IF NOT EXISTS medals (userId TEXT, points INTEGER)").then(() => {
+            sql.run("INSERT INTO medals (userId, points) VALUES (?, ?)", [userID, points]);
+            console.log(points + ' points added! (new table created)');
+        });
+    });
+};
 
+function getGoodBoi(userID, channel) { //Gets score of user.
+    //return new Promise((resolve, reject) => {
+    sql.get(`SELECT * FROM medals WHERE userId ="${userID}"`).then(row => {
+        if (!row) {
+            console.log("No row, retrieving points of user" + userID + "anyways, retrieved:" + row.points);
+            channel.send("<@" + userID + "> you have 0 " + config.points + "!");
+            return 0;
+        };
+        //console.log("Retrieving points of user " + userID + " retrieved: " + row.points);
+        channel.send("<@" + userID + "> you have " + row.points + " " + config.points + "!");
+        return row.points;
+    });
+    //});
+}
+
+function getBestBois(channel) { //Returns best bois!
+    var sndMsg = "";
+    sql.all('SELECT userId,points FROM medals ORDER BY points DESC LIMIT ' + config.TopPlayers).then(rows => {
+        rows.forEach(function(brow) {
+            sndMsg += "\n";
+            sndMsg += '<@' + brow.userId + '> has ' + brow.points + " " + config.points;
+            sndMsg += "\n\n";
+            for (var i = 0; i < brow.points; i++) {
+                sndMsg += "<:medal:460520365026836501>";
+            }
+            sndMsg += "\n";
+        })
+        channel.send(sndMsg);
+    });
+}
 
 bot.on('messageReactionAdd', (reaction, user) => {
     if ((reaction.message.channel.id == config.suggestionsChannelID) && (user.id == config.ownerID)) {
@@ -188,6 +237,10 @@ bot.on('messageReactionAdd', (reaction, user) => {
     }
     if ((user.id == config.ownerID) && (reaction.emoji.identifier == "%E2%98%A0")) {
         reaction.message.delete(1000).catch(O_o => {});
+    }
+    if ((user.id == config.ownerID) && (reaction.emoji.identifier == "%F0%9F%8F%85")) {
+        reaction.message.channel.fetchMessages({ limit: 5 }).then(
+            addGoodBoi(reaction.message.author.id, 1, reaction.message.channel));
     }
 });
 bot.on('message', (message) => {
@@ -234,67 +287,17 @@ bot.on('message', (message) => {
         return message.content.trim().split(/ /g)[number + 1];
     }
 
-    function addGoodBoi(userID, amount, channel) { //Adds points to those deserving bois
-        var points = Number(amount);
-        sql.open("./sqlite/medals.sqlite"); // (userId, points)
-        sql.get(`SELECT * FROM medals WHERE userId ="${userID}"`).then(row => {
-            if (!row) {
-                sql.run("INSERT INTO medals (userId, points) VALUES (?, ?)", [userID, points]);
-                console.log(points + ' points added! (new row in existing table)');
-            } else {
-                sql.run(`UPDATE medals SET points = ${row.points + points} WHERE userId = ${userID}`);
-                console.log(points + ' points added! (existing row in existing table)');
-            }
-        }).catch(() => {
-            console.error;
-            sql.run("CREATE TABLE IF NOT EXISTS medals (userId TEXT, points INTEGER)").then(() => {
-                sql.run("INSERT INTO medals (userId, points) VALUES (?, ?)", [userID, points]);
-                console.log(points + ' points added! (new table created)');
-            });
-        });
-        channel.send("<:medal:460520365026836501> Congratulations to <@" + userID + "> for gaining " + amount + " " + config.points + "! <:medal:460520365026836501>");
-    };
-
-    function getGoodBoi(userID, channel) { //Gets score of user.
-        //return new Promise((resolve, reject) => {
-        sql.open("./sqlite/medals.sqlite"); // (userId, points)
-        sql.get(`SELECT * FROM medals WHERE userId ="${userID}"`).then(row => {
-            if (!row) {
-                console.log("No row, retrieving points of user" + userID + "anyways, retrieved:" + row.points);
-                return 0;
-            };
-            //console.log("Retrieving points of user " + userID + " retrieved: " + row.points);
-            channel.send("<@" + userID + "> has " + row.points + " " + config.points + "!");
-            return row.points;
-        });
-        //});
-    }
-
-    function getBestBois(channel) { //Returns best bois!
-        var sndMsg = "";
-        sql.open("./sqlite/medals.sqlite"); // (userId, points)
-        sql.all('SELECT userId,points FROM medals ORDER BY points DESC LIMIT ' + config.TopPlayers).then(rows => {
-            rows.forEach(function(brow) {
-                sndMsg += "\n";
-                sndMsg += '<@' + brow.userId + '> has ' + brow.points + " " + config.points;
-                sndMsg += "\n\n";
-                for (var i = 0; i < brow.points; i++) {
-                    sndMsg += "<:medal:460520365026836501>";
-                }
-                sndMsg += "\n";
-            })
-            channel.send(sndMsg);
-        });
-    }
+    /* MEDALS */
 
     if (message.author.id == config.ownerID) { // OWNER COMMANDS
-        console.log("Executed: " + command);
         if (command == config.addPoints.toLowerCase()) {
             var goodBoiName = getArg(1);
             var goodBoiID = getArg(1).slice(2, getArg(1).length - 1);
             var goodBoiAmnt = Number(getArg(2));
             //console.log("addGoodBoi(" + goodBoiID + ", " + goodBoiAmnt + ", " + message.channel + ")")
             addGoodBoi(goodBoiID, goodBoiAmnt, message.channel);
+            channel.send("<:medal:460520365026836501> Congratulations to <@" + goodBoiID + "> for gaining " + goodBoiAmnt + " " + config.points + "! <:medal:460520365026836501>");
+
         }
     }
     if (command == "top" + config.points) {
@@ -480,6 +483,8 @@ bot.on('message', (message) => {
         helpMsg += config.prefix + ' Suggest <suggestion for Mimsy development>\n ';
         helpMsg += config.prefix + ' (Un)Follow/(un)subscribe Toggle notifications for new streams, become a subscriber!\n ';
         helpMsg += config.prefix + ' FollowDate Get the date when you first subscribed\n ';
+        helpMsg += config.prefix + ' Top' + config.points + " get list of members with most " + config.points + "\n ";
+        helpMsg += config.prefix + ' Get' + config.points + " get your amount of " + config.points + "\n ";
         helpMsg += '\nFun Commands:\n ';
         helpMsg += config.prefix + ' Fact\n ';
         //helpMsg += config.prefix+' + ai < message directed to the ai > \n ' --Broken--
