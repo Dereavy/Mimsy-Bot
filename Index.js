@@ -19,17 +19,7 @@ const Hangman = require("./js/Hangman.js");
 const Login = require('./js/botToken.js'); //Not included in the git file, see wiki for details.
 const DB = require('./js/Database.js');
 const config = require('./js/config.js');
-// load configuration
-/*
-try {
-    var filename = "./config.yml";
-    var contents = fs.readFileSync(filename, 'utf8');
-    var config = yaml.load(contents);
-    //console.log(util.inspect(data, false, 10, true));
-} catch (err) {
-    //console.log(err.stack || String(err));
-}
-*/
+
 /* INITIALISATION */
 
 sql.open("./sqlite/users.sqlite"); // (userId, points, level)
