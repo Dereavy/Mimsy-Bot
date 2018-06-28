@@ -283,13 +283,18 @@ bot.on('message', (message) => {
         function hangmanSession() {
             sql.get(`SELECT Session_Status FROM hangman WHERE User_ID = "${message.author.id}"`).then(row => { if (!row) {} else { return row.Session_Status; } });
         }
-        var newWord = Actions.replaceInWord(Hangman.randomWord()[2], " ", "_").toLowerCase();
-        console.log(newWord)
-        if ((command == "hm") && (lowercasemessage == "start")) {
-            Hangman.startGame(message.author.id, newWord);
-            console.log(Hangman.startGame(message.author.id, newWord)); //doesn't work (not expected to)
-            message.author.send(Hangman.getMessage(newWord, "", 2));
+        if ((command == "hm") && (lowercasemessage.trim() == "start")) {
+            var newWordGroup = Hangman.randomWord();
+            var newWord = newWordGroup[2].toLowerCase();
+            var newHint = newWordGroup[0].toLowerCase() + " " + newWordGroup[1].toLowerCase();
+            DB.startGame(message.author.id, newWord, newHint);
+
+            message.author.send(Hangman.getMessage(newWord, "", config.get.hangmanDifficulty));
         }
+        if ((command == "hm") && (lowercasemessage.trim() == "status")) {
+            DB.getGame(message.author.id, message.author);
+        }
+
 
         /* new hangman user:
                 sql.run(
