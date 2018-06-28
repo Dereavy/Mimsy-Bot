@@ -2,7 +2,36 @@
 
 const sql = require("sqlite");
 const config = require('../js/config.js');
+const hangman = require('../js/Hangman.js');
 
+function DBEncode(word) {
+    var ret = "";
+    for (var i = 0; i < word.length; i++) {
+        if (word[i] == " ") {
+            ret += "_";
+        } else {
+            ret += word[i];
+        }
+    }
+    return ret
+}
+
+function DBDecode(word) {
+    console.log("[DEBUG] DBDecode(word) word:" + word);
+    var ret = "";
+    if (word == null) {
+        return "";
+    }
+    for (var i = 0; i < word.length; i++) {
+        if (word[i] == "_") {
+            ret += " ";
+        } else {
+            ret += word[i];
+        }
+    }
+
+    return ret
+}
 module.exports = {
 
     /** MEDALS */
@@ -66,8 +95,37 @@ module.exports = {
                 console.log(brow.userId + " - " + brow.points)
             })
         });
-    }
+    },
 
     /** HANGMAN */
+    //function startGame => creates new table for new users, resets table values for existing users (except Total_Points)
+    startGame: function(messageAuthorID, word, hint) { // (messageAuthorID is of type: "string", word  is of type: "string", hint is of type "string")
+        hint = DBEncode(hint);
+        word = DBEncode(word);
+        sql.get(`SELECT * FROM hangman WHERE User_ID = "${messageAuthorID}"`).then(row => { //grab the row where the user id is the one I want
+            if (!row) { // Can't find the row (New user).
+                sql.run("INSERT INTO hangman (User_ID, Session_Status, Word, Guess_List, Hint, Difficulty, Total_Points) VALUES (?, ?, ?, ?, ?, ?, ?)", [messageAuthorID, true, word, "", hint, 2, 0]); //create new row for user with default values
+                console.log("[DATABASE] Started first hangman game for " + messageAuthorID + " - Word: " + word + " - Hint: " + hint);
+            } else { // Can find the row (Existing user).
+                sql.run(`UPDATE hangman SET Session_Status = true, word = ${word}, Guess_List = "", Hint = ${hint}, Difficulty = 2 WHERE User_Id = ${messageAuthorID}`); //Update values for new game.
+                console.log("[DATABASE] Started new hangman game for " + messageAuthorID + " - Word:\"" + word + "\" Hint:\"" + hint + "\"");
+            }
+        }).catch(err => { //If table doesn't exist create a new table
+            sql.run("CREATE TABLE IF NOT EXISTS hangman (User_ID, Session_Status, Word, Guess_List, Hint, Difficulty, Total_Points)").then(() => {
+                sql.run("INSERT INTO hangman (User_ID, Session_Status, Word, Guess_List, Hint, Difficulty, Total_Points) VALUES (?, ?, ?, ?, ?, ?, ?)", [messageAuthorID, true, word, "", hint, 2, 0]);
+            });
+            console.log("[DATABASE] Created hangman table for " + messageAuthorID + " - Word:\"" + word + "\" Hint:\"" + hint + "\"");
+        });
+    },
 
+    //function getGame => returns current game status of user: Object[User_ID, Session_Status, Word, Guess_List, Hint, Difficulty, Total_Points]
+    getGame: function(messageAuthorID, channel) {
+        sql.get(`SELECT * FROM hangman WHERE User_ID ="${messageAuthorID}"`).then(row => {
+            if (!row) {
+                return 0;
+            };
+            channel.send(hangman.getMessage(DBDecode(row.Word), DBDecode(row.Guess_List), row.Difficulty));
+            console.log(row.User_ID + "|" + row.Session_Status + "|" + DBDecode(row.Word) + "|" + row.Guess_List + "|" + DBDecode(row.Hint) + "|" + row.Difficulty + "|" + row.Total_Points);
+        });
+    }
 }
