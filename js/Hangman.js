@@ -1,3 +1,5 @@
+const config = require('../js/config.js');
+var prefix = config.get.prefix;
 /**
 ```
     ~ ~ ~ ~  H A N G M A N  ~ ~ ~ ~
@@ -27,14 +29,13 @@ var Dictionary = {
         "instruments": ["Saxophone", "Basse", "Violin", "Piano", "Guitar", "Trombone", "Trumpet", "Gong", "Bell", "Triangle", "Cello", "Electric Guitar", "Harp", "Clarinet", "Flute", "Tuba", "Xylophone"],
         "travel": ["Car", "Bus", "Train", "Boat", "Jet", "Shopping Trolley", "Plane", "Aeroplane", "Jetski", "Submarine", "Hang Glider", "Wingsuit", "Space Rocket", "Dune Buggy", "Bike", "Skateboard"],
         "inventions": ["Wheel", "Android", "Computer", "Monitor", "Sundial", "Catapult", "Clock", "Mechanical Clock", "Walkman", "Macintosh", "Victrola Record Player", "Radio", "Camera", "Camcorder", "Calculator", "Game Boy", "Typewriter", "GPS", "Answering Machine", "DVD Player", "PlayStation", "Oculus Rift", "Thermostat", "Raspberry Pi", "Segway"],
-        "countries": ["France", "Netherlands", "Germany", "Switzerland"],
-        "food": ["Fish and Chips", "Pancake", "Cheeseburger"]
+        "countries": ["France", "Netherlands", "Germany", "Switzerland", "America", "Canada", "United Kingdom", "England", "Scotland", "Wales", "Spain"],
+        "food": ["Fish and Chips", "Pancake", "Cheeseburger", "Roast Beef", "French Fries", "Chocolate Mousse", "Burger", "Caesar Salad", "Pasta"]
     },
     "Natural world": {
         "events": ["Tornado", "Sunrise", "Sunset", "Storm", "Sandstorm", "Tsunami", "Heatwave", "Eclipse", "Flood", "Low Tide", "High Tide", "Earthquake"],
-        "animals": ["Duck", "Goose", "Beaver", "Moose", "Fox", "fish"],
-        "items": ["Shell", "Pebble", "Pinecone", "SeaWeed", "Log", "Fossil"]
-
+        "animals": ["Duck", "Goose", "Beaver", "Moose", "Fox", "Fish", "Octopus", "Whale", "Stick Insect", "Penguin"],
+        "items": ["Shell", "Pebble", "Pinecone", "SeaWeed", "Log", "Fossil", "Ravine", "Mineral", "Mountain", "Coral Reef"]
     }
 };
 var messageTitle = "    ~ ~ ~ ~  H A N G M A N  ~ ~ ~ ~\n";
@@ -166,11 +167,44 @@ function getBlankedWord(word, guessList) {
     blankedWord += "\n";
     return blankedWord;
 }
+
+function getDifficulty(text) {
+    //converts numbers to accepted difficulty inputs
+    //4:"intense", 3:"hard", 2:"medium", 1:"easy"
+    if (text == 1) { return "easy"; }
+    if (text == 2) { return "medium"; }
+    if (text == 3) { return "hard"; }
+    if (text == 4) { return "intense"; }
+    return text;
+}
+
+function getStage(word, guessList, difficulty) {
+    //Returns Hangman stage depending on difficulty and word.
+    //Array of hangman displays according to chosen difficulty:
+    var stages = Object.values(Difficulty)[Object.keys(Difficulty).indexOf(getDifficulty(difficulty))];
+    var stageIndex = 0;
+    if (guessList == null) { guessList = ""; }
+    for (var i = 0; i < guessList.length; i++) {
+        if (!(includesLetter(word, guessList[i])) && (guessList[i] != " ")) { //If the letter in the guesslist is NOT in the word.
+            if (stageIndex < stages.length - 1) {
+                stageIndex++;
+            } else {
+                stageIndex = stages.length - 1;
+            }
+        }
+
+    }
+    //Debug:
+    //console.log("[" + stageIndex + ":" + stages[stageIndex] + "]");
+    return HangmanStages[stages[stageIndex]];
+
+}
+
 module.exports = {
     test: function() {
 
     },
-    help: function(prefix) {
+    help: function() {
         var msg = "";
         msg += "**Game in developpement, none of these commands are functional yet.**\n"
         msg += "\n"
@@ -237,12 +271,10 @@ module.exports = {
      *     True => triggers check to see if the game has finished.
      *     Increment the hangman stage automatically if a "wrong" letter is added to the guess list
      */
-    guess: function(randomWord, guess) {
-        if (includesLetter(randomWord[2], guess)) {
-            return true;
-        }
-        return false;
+    guess: function(word, guess) {
+        return includesLetter(word, guess);
     },
+
     getWordScore: function(word) {
         var score = 0;
         if (isWord(word)) {
@@ -266,45 +298,13 @@ module.exports = {
         var displayedWord = getBlankedWord(word, guessList);
 
         // Get hangman display
-        //Array of hangman displays according to chosen difficulty:
-        stages = Object.values(Difficulty)[Object.keys(Difficulty).indexOf(mode)];
-        stageIndex = 0;
-        for (var i = 0; i < guessList.length; i++) {
-            if (!(includesLetter(word, guessList[i])) && (guessList[i] != " ")) { //If the letter in the guesslist is NOT in the word.
-                if (stageIndex < stages.length - 1) {
-                    stageIndex++;
-                } else {
-                    stageIndex = stages.length - 1;
-                }
-            }
-            console.log(stageIndex);
-        }
-        console.log([stageIndex + ":" + stages[stageIndex]]);
-        var displayHangman = HangmanStages[stages[stageIndex]];
+        var displayHangman = getStage(word, guessList, mode);
 
         // Get used letters display 
-        displayLetters = " **LETTERS :**     **" + capFormat(otherLetters(guessList)) + "** \n GUESSES :**   **  " + capFormat(guessList) + "    " + "\n"
+        var displayLetters = " **LETTERS :**     **" + capFormat(otherLetters(guessList)) + "** \n GUESSES :**   **  " + capFormat(guessList) + "    " + "\n";
 
         // Return message
-        return "```" + messageTitle + displayHangman + displayedWord + "```" + displayLetters;
-    },
-
-    //function startGame => creates new table for new users, resets table values for existing users (except Total_Points)
-    startGame: function(messageAuthorID, newWord) { // (messageAuthorID is of type: "string", newWord  is of type: "string")
-        sql.get(`SELECT * FROM hangman WHERE User_ID = "${messageAuthorID}"`).then(row => { //grab the row where the user id is the one I want
-            if (!row) { // Can't find the row (New user).
-                sql.run("INSERT INTO hangman (User_ID, Session_Status, Word, Guess_List, Hint, Difficulty, Total_Points) VALUES (?, ?, ?, ?, ?, ?, ?)", [messageAuthorID, true, newWord, "", false, 2, 0]); //create new row for user with default values
-                console.log("started first game for " + messageAuthorID); // This does not work?
-            } else { // Can find the row (Existing user).
-                sql.run(`UPDATE users SET Session_Status = true, word = ${newWord}, Guess_List = "", Hint = false, Difficulty = 2 WHERE User_Id = ${messageAuthorID}`); //Update values for new game.
-                console.log("started new game for " + messageAuthorID); // This does not work?
-            }
-        }).catch(err => { //If table doesn't exist create a new table
-            sql.run("CREATE TABLE IF NOT EXISTS hangman (User_ID, Session_Status, Word, Guess_List, Hint, Difficulty, Total_Points)").then(() => {
-                sql.run("INSERT INTO hangman (User_ID, Session_Status, Word, Guess_List, Hint, Difficulty, Total_Points) VALUES (?, ?, ?, ?, ?, ?, ?)", [messageAuthorID, true, newWord, "", false, 2, 0]);
-            });
-            console.log("Created hangman table for " + messageAuthorID); // This does not work?
-        });
+        return "```" + messageTitle + displayHangman + displayedWord + "\n " + prefix + " hmg <letter> to guess" + "```\n" + displayLetters;
     }
 };
 
@@ -319,15 +319,8 @@ object length: var size = Object.keys(myObj).length;
 USER || Word ||Guesses    || Mode
 Paul || Beef || ajfklsebf || Hard/Easy/Medium
 
-!! hm A
+!! hmg A
 => Save the guess to the guesses.A
-On Win, 
-
-
-
-
-var mediumWords=[
-
-]
+On Win, stuff happens.
 
 */
