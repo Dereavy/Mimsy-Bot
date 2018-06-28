@@ -61,3 +61,6 @@
 
 #- Console welcome message
     welcome: "Discord Bot: Mimsy has launched!"
+
+#- Hangman Difficulty: 1:"easy" 2:"medium" 3:"hard" 4:"insane"
+    hangmanDifficulty: 2
