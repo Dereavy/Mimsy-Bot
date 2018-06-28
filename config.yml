@@ -58,3 +58,6 @@
 
 #- Specify main command to add rewards to users (prefix + addPoints + user + amount)
     addPoints: "medal"
+
+#- Console welcome message
+    welcome: "Discord Bot: Mimsy has launched!"
