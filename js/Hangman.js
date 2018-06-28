@@ -27,14 +27,15 @@ var Dictionary = {
         "instruments": ["Saxophone", "Basse", "Violin", "Piano", "Guitar", "Trombone", "Trumpet", "Gong", "Bell", "Triangle", "Cello", "Electric Guitar", "Harp", "Clarinet", "Flute", "Tuba", "Xylophone"],
         "travel": ["Car", "Bus", "Train", "Boat", "Jet", "Shopping Trolley", "Plane", "Aeroplane", "Jetski", "Submarine", "Hang Glider", "Wingsuit", "Space Rocket", "Dune Buggy", "Bike", "Skateboard"],
         "inventions": ["Wheel", "Android", "Computer", "Monitor", "Sundial", "Catapult", "Clock", "Mechanical Clock", "Walkman", "Macintosh", "Victrola Record Player", "Radio", "Camera", "Camcorder", "Calculator", "Game Boy", "Typewriter", "GPS", "Answering Machine", "DVD Player", "PlayStation", "Oculus Rift", "Thermostat", "Raspberry Pi", "Segway"],
-        "countries": ["France", "Netherlands", "Germany", "Switzerland"]
+        "countries": ["France", "Netherlands", "Germany", "Switzerland"],
+        "food": ["Fish and Chips", "Pancake", "Cheeseburger"]
     },
     "Natural world": {
         "events": ["Tornado", "Sunrise", "Sunset", "Storm", "Sandstorm", "Tsunami", "Heatwave", "Eclipse", "Flood", "Low Tide", "High Tide", "Earthquake"],
-        "animals": ["Duck", "Goose", "Beaver", "Moose", "Fox"]
+        "animals": ["Duck", "Goose", "Beaver", "Moose", "Fox", "fish"],
+        "items": ["Shell", "Pebble", "Pinecone", "SeaWeed", "Log", "Fossil"]
 
     }
-
 };
 var messageTitle = "    ~ ~ ~ ~  H A N G M A N  ~ ~ ~ ~\n";
 var HangmanStages = [
@@ -287,9 +288,10 @@ module.exports = {
         // Return message
         return "```" + messageTitle + displayHangman + displayedWord + "```" + displayLetters;
     },
+
     //function startGame => creates new table for new users, resets table values for existing users (except Total_Points)
     startGame: function(messageAuthorID, newWord) { // (messageAuthorID is of type: "string", newWord  is of type: "string")
-        return sql.get(`SELECT * FROM hangman WHERE User_ID = "${messageAuthorID}"`).then(row => { //grab the row where the user id is the one I want
+        sql.get(`SELECT * FROM hangman WHERE User_ID = "${messageAuthorID}"`).then(row => { //grab the row where the user id is the one I want
             if (!row) { // Can't find the row (New user).
                 sql.run("INSERT INTO hangman (User_ID, Session_Status, Word, Guess_List, Hint, Difficulty, Total_Points) VALUES (?, ?, ?, ?, ?, ?, ?)", [messageAuthorID, true, newWord, "", false, 2, 0]); //create new row for user with default values
                 console.log("started first game for " + messageAuthorID); // This does not work?
@@ -321,7 +323,7 @@ Paul || Beef || ajfklsebf || Hard/Easy/Medium
 => Save the guess to the guesses.A
 On Win, 
 
-//"fish", "shell", "burger", "pancake", "bookshelf", "cheeseburger", "netherlands"
+
 
 
 var mediumWords=[
