@@ -253,6 +253,10 @@ bot.on('message', (message) => {
     if (command == "getall" + config.get.points) {
         DB.getAllBois(message.channel);
     }
+    if (command == "hangman") {
+        message.author.send(Hangman.help());
+        DB.hangmanStart(message.author.id, message.author);
+    }
     //PRIVATE MESSAGES
     if (message.channel.type == "dm") {
 
@@ -284,12 +288,7 @@ bot.on('message', (message) => {
             sql.get(`SELECT Session_Status FROM hangman WHERE User_ID = "${message.author.id}"`).then(row => { if (!row) {} else { return row.Session_Status; } });
         }
         if ((command == "hm") && (lowercasemessage.trim() == "start")) {
-            var newWordGroup = Hangman.randomWord();
-            var newWord = newWordGroup[2].toLowerCase();
-            var newHint = newWordGroup[0].toLowerCase() + " " + newWordGroup[1].toLowerCase();
-            DB.hangmanStart(message.author.id, newWord, newHint);
-
-            message.author.send(Hangman.getMessage(newWord, "", config.get.hangmanDifficulty));
+            DB.hangmanStart(message.author.id, message.author)
         }
         if ((command == "hm") && (lowercasemessage.trim() == "status")) {
             DB.hangmanStatus(message.author.id, message.author);
@@ -299,6 +298,9 @@ bot.on('message', (message) => {
         }
         if ((command == "hmg") && (Hangman.isLetter(lowercasemessage.trim()))) {
             DB.hangmanGuess(message.author.id, message.author, lowercasemessage.trim());
+        }
+        if ((command == "hm") && (lowercasemessage.trim() == "points")) {
+            DB.hangmanGetPoints(message.author.id, message.author);
         }
 
 
@@ -439,15 +441,16 @@ bot.on('message', (message) => {
         helpMsg += 'Commands followed by my prefix => `' + config.get.prefix + '`:``` ';
         helpMsg += '\nCommands:\n ';
         helpMsg += config.get.prefix + ' Suggest <suggestion for Mimsy development>\n ';
-        helpMsg += config.get.prefix + ' (Un)Follow/(un)subscribe Toggle notifications for new streams, become a subscriber!\n ';
-        helpMsg += config.get.prefix + ' FollowDate Get the date when you first subscribed\n ';
-        helpMsg += config.get.prefix + ' Top' + config.get.points + " get list of members with most " + config.get.points + "\n ";
-        helpMsg += config.get.prefix + ' Get' + config.get.points + " get your amount of " + config.get.points + "\n ";
+        helpMsg += config.get.prefix + ' (Un)Follow/(un)subscribe |Toggle notifications for new streams, become a subscriber!\n ';
+        helpMsg += config.get.prefix + ' FollowDate |Get the date when you first subscribed\n ';
+        helpMsg += config.get.prefix + ' Top' + config.get.points + " |Get list of members with most " + config.get.points + "\n ";
+        helpMsg += config.get.prefix + ' Get' + config.get.points + " |Get your amount of " + config.get.points + "\n ";
         helpMsg += '\nFun Commands:\n ';
         helpMsg += config.get.prefix + ' Fact\n ';
         //helpMsg += config.get.prefix+' + ai < message directed to the ai > \n ' --Broken--
         helpMsg += config.get.prefix + ' Video\n ';
         helpMsg += config.get.prefix + ' SM <message> (SM = Spongebob Meme: Mockbob) the message for you\n ';
+        helpMsg += config.get.prefix + ' Hangman |Start a hangman game!\n ';
         helpMsg += '\nVoice Channel: \n ';
         helpMsg += config.get.prefix + ' Summon\n '
         helpMsg += config.get.prefix + ' Dismissed\n ';
