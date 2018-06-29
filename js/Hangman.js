@@ -257,7 +257,6 @@ module.exports = {
     },
     help: function() {
         var msg = "";
-        msg += "**Game in developement, none of these commands are functional yet.**\n"
         msg += "\n"
         msg += "** ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~    H A N G M A N   ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~**\n"
         msg += "\n"
@@ -269,7 +268,7 @@ module.exports = {
         msg += "\n"
         msg += "**Starting the game:**\n"
         msg += "\n"
-        msg += " Start the game with the command: `" + prefix + " hm start`\n"
+        msg += " Start the game with the command: `" + prefix + " hm start` in PM\n"
         msg += "\n"
         msg += "**playing the game:**\n"
         msg += "This is hangman, you have to guess the word a letter at a time.\nBe careful, your guesses are limited!\n"
@@ -288,10 +287,8 @@ module.exports = {
         msg += "-    Start Game:           *`" + prefix + " hm start`*\n"
         msg += "-    Game Status:       *`" + prefix + " hm status`*\n"
         msg += "-    Hint (-5pts):          *`" + prefix + " hm hint`* Coming soon\n"
-        msg += "-    Points:                     *`" + prefix + " hm points`* Coming soon\n"
+        msg += "-    Points:                     *`" + prefix + " hm points`*\n"
         msg += "** ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~**\n"
-
-
         return msg;
     },
 
