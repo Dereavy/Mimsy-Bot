@@ -255,7 +255,7 @@ bot.on('message', (message) => {
     }
     if (command == "hangman") {
         message.author.send(Hangman.help());
-        DB.hangmanStart(message.author.id, message.author);
+        message.delete(1000).catch(O_o => {});
     }
     //PRIVATE MESSAGES
     if (message.channel.type == "dm") {
