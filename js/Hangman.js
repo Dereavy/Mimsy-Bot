@@ -204,17 +204,56 @@ function getStage(word, guessList, difficulty) {
     return HangmanStages[stages[stageIndex]];
 
 }
+// Make function to determine game status: "win"/"lose"/"ongoing" (input = (word, guessList, mode))
+function gameStatus(word, guessList, mode) {
+    //Determine if game is at the end.
+    // LOSE condition:
+    var stages = Object.values(Difficulty)[Object.keys(Difficulty).indexOf(getDifficulty(mode))];
+    var stageIndex = 0;
+    for (var i = 0; i < guessList.length; i++) {
+        if (!(includesLetter(word, guessList[i])) && (guessList[i] != " ")) { //If the letter in the guesslist is NOT in the word.
+            if (stageIndex < stages.length - 2) {
+                stageIndex++;
+            } else {
+                return "lose";
+            }
+        }
 
+    }
+    // WIN condition:
+    if (includesChars(word, guessList)) {
+        return "win";
+    }
+    return "ongoing";
+}
+
+function getWordScore(word) {
+    var score = 0;
+    if (isWord(word)) {
+        var uniq = getUnique(word);
+        for (var i = 0; i < uniq.length; i++) {
+            if (!isVowel(uniq[i])) {
+                score += 1;
+            }
+        }
+        return score * 0.5;
+    }
+    return 0;
+}
+
+function isLetter(letter) {
+    if ((typeof letter == "string") && (letter.length == 1)) {
+        for (var j = 0; j < alphabet.length; j++) {
+            if (letter.toLowerCase() == alphabet[j]) {
+                return true;
+            }
+        }
+        return false;
+    }
+}
 module.exports = {
     isLetter: function(letter) {
-        if ((typeof letter == "string") && (letter.length == 1)) {
-            for (var j = 0; j < alphabet.length; j++) {
-                if (letter.toLowerCase() == alphabet[j]) {
-                    return true;
-                }
-            }
-            return false;
-        }
+        return isLetter(letter);
     },
     help: function() {
         var msg = "";
@@ -282,17 +321,7 @@ module.exports = {
     },
 
     getWordScore: function(word) {
-        var score = 0;
-        if (isWord(word)) {
-            var uniq = getUnique(word);
-            for (var i = 0; i < uniq.length; i++) {
-                if (!isVowel(uniq[i])) {
-                    score += 1;
-                }
-            }
-            return score * 0.5;
-        }
-        return "\"" + word + "\" is not a word"
+        return getWordScore(word);
     },
 
     //word == "string"
@@ -312,28 +341,31 @@ module.exports = {
         // Return message
         return "```" + messageTitle + displayHangman + displayedWord + "\n " + prefix + " hmg <letter> to guess" + "```\n" + displayLetters;
     },
+    getLoseMessage: function(channel, word, guessList, hint, mode) {
+        //You Lost
+
+        // Get word with blanks
+        var displayedWord = getBlankedWord(word, guessList);
+
+        // Get hangman display
+        var displayHangman = getStage(word, guessList, mode);
+
+        // Get used letters display 
+        var displayLetters = " **LETTERS :**     **" + capFormat(otherLetters(guessList)) + "** \n GUESSES :**   **  " + capFormat(guessList) + "    " + "\n";
+        // You lose message:
+        var loseMessage = "You lose, the word was: " + word + "\n";
+
+        // Return message
+        channel.send("```" + messageTitle + "\n" + loseMessage + displayHangman + displayedWord + "\n```\n" + displayLetters);
+    },
+    getWinMessage: function(channel, word, hint, totalPoints) {
+        //You Won
+        channel.send("```" + messageTitle + "\nCongratulations!\n\nYou guessed the word: " + word + "\n" + "You won " + getWordScore(word) + " points!\n\nYour points: " + (Number(totalPoints) + Number(getWordScore(word))) + "\n```");
+    },
 
     // Make function to determine game status: "win"/"lose"/"ongoing" (input = (word, guessList, mode))
     gameStatus: function(word, guessList, mode) {
-        //Determine if game is at the end.
-        // LOSE condition:
-        var stages = Object.values(Difficulty)[Object.keys(Difficulty).indexOf(getDifficulty(difficulty))];
-        var stageIndex = 0;
-        for (var i = 0; i < guessList.length; i++) {
-            if (!(includesLetter(word, guessList[i])) && (guessList[i] != " ")) { //If the letter in the guesslist is NOT in the word.
-                if (stageIndex < stages.length - 1) {
-                    stageIndex++;
-                } else {
-                    return "lose";
-                }
-            }
-
-        }
-        // WIN condition:
-        if (includesChars(word, guessList)) {
-            return "win";
-        }
-        return "ongoing";
+        return gameStatus(word, guessList, mode);
     }
 };
 
