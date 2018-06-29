@@ -287,12 +287,18 @@ bot.on('message', (message) => {
             var newWordGroup = Hangman.randomWord();
             var newWord = newWordGroup[2].toLowerCase();
             var newHint = newWordGroup[0].toLowerCase() + " " + newWordGroup[1].toLowerCase();
-            DB.startGame(message.author.id, newWord, newHint);
+            DB.hangmanStart(message.author.id, newWord, newHint);
 
             message.author.send(Hangman.getMessage(newWord, "", config.get.hangmanDifficulty));
         }
         if ((command == "hm") && (lowercasemessage.trim() == "status")) {
-            DB.getGame(message.author.id, message.author);
+            DB.hangmanStatus(message.author.id, message.author);
+        }
+        if ((command == "hm") && (lowercasemessage.trim() == "help")) {
+            message.author.send(Hangman.help());
+        }
+        if ((command == "hmg") && (Hangman.isLetter(lowercasemessage.trim()))) {
+            DB.hangmanGuess(message.author.id, message.author, lowercasemessage.trim());
         }
 
 
