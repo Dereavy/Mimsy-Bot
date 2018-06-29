@@ -201,7 +201,7 @@ module.exports = {
                             channel.send(hangman.getWinMessage(channel, DBDecode(row.Word), DBDecode(row.Hint), row.Total_Points));
                             //Add points etc.. here.
                             var points = hangman.getWordScore(DBDecode(row.Word));
-                            var newPoints = points + Number(row.Total_Points);
+                            var newPoints = (Number(points) + Number(row.Total_Points));
                             console.log(newPoints);
                             sql.run(`UPDATE hangman SET Total_Points = "` + newPoints + `" WHERE User_Id = "${messageAuthorID}"`);
                             hangmanStart(messageAuthorID, channel);
