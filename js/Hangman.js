@@ -81,16 +81,7 @@ function randomWord() {
 }
 
 // Functions
-function isLetter(letter) {
-    if ((typeof letter == "string") && (letter.length == 1)) {
-        for (var j = 0; j < alphabet.length; j++) {
-            if (letter.toLowerCase() == alphabet[j]) {
-                return true;
-            }
-        }
-        return false;
-    }
-}
+
 
 function isVowel(letter) {
     if (typeof letter == "string") {
@@ -118,6 +109,20 @@ function isWord(word) {
 function includesLetter(string, letter) {
     for (var j = 0; j < string.length; j++) {
         if (letter.toLowerCase() == string[j].toLowerCase()) { return true; }
+    }
+    return false;
+}
+
+//check if word contains all characters in string.
+function includesChars(word, string) {
+    var checkString = "";
+    for (var i = 0; i < word.length; i++) {
+        for (var j = 0; j < string.length; j++) {
+            if (word[i].toLowerCase() == string[j].toLowerCase()) { checkString += word[i] }
+        }
+    }
+    if (checkString.length == word.length) {
+        return true;
     }
     return false;
 }
@@ -201,58 +206,59 @@ function getStage(word, guessList, difficulty) {
 }
 
 module.exports = {
-    test: function() {
-
+    isLetter: function(letter) {
+        if ((typeof letter == "string") && (letter.length == 1)) {
+            for (var j = 0; j < alphabet.length; j++) {
+                if (letter.toLowerCase() == alphabet[j]) {
+                    return true;
+                }
+            }
+            return false;
+        }
     },
     help: function() {
         var msg = "";
-        msg += "**Game in developpement, none of these commands are functional yet.**\n"
+        msg += "**Game in developement, none of these commands are functional yet.**\n"
         msg += "\n"
-        msg += "** ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~    H A N G M A N   ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~**\n"
+        msg += "** ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~    H A N G M A N   ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~**\n"
+        msg += "\n"
+        msg += "**  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~**\n"
+        msg += "\n"
+        msg += "                                             Game\n"
+        msg += "\n"
+        msg += "**  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~**\n"
+        msg += "\n"
+        msg += "**Starting the game:**\n"
+        msg += "\n"
+        msg += " Start the game with the command: `" + prefix + " hm start`\n"
+        msg += "\n"
+        msg += "**playing the game:**\n"
+        msg += "This is hangman, you have to guess the word a letter at a time.\nBe careful, your guesses are limited!\n"
+        msg += "Hints use 5 points per use, if you have no points you can't use hints.\n"
+        msg += "\n"
+        msg += "After starting the game, guess letters with the command: `" + prefix + " hmg <letter>` \n"
+        msg += "If you forget where you are at do: `" + prefix + " hm status` to continue guessing.\n"
+        msg += "\n"
+        msg += "You cannot win or lose the game at the moment, when the game ends, restart with the start command.\n"
+        msg += "\n"
         msg += "**  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~**\n"
         msg += "                                             Commands\n"
         msg += "**  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~**\n"
         msg += "\n"
         msg += "-    Help:                        *` " + prefix + " hm help`*\n"
-        msg += "-    Start Game:           *`" + prefix + " hm start <difficulty>`*\n"
-        msg += "-    Resume Game:     *`" + prefix + " hm resume`*\n"
-        msg += "-    Hint (-5pts):          *`" + prefix + " hm hint`*\n"
-        msg += "-    Points:                     *`" + prefix + " hm points`*\n"
-        msg += "\n"
-        msg += "\n"
-        msg += "**  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~**\n"
-        msg += "                                             Game\n"
-        msg += "**  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~**\n"
-        msg += "\n"
-        msg += "**Starting the game:**\n"
-        msg += "\n"
-        msg += " Start the game with the command: `" + prefix + " hm start <difficulty>`\n"
-        msg += "\n"
-        msg += " There are four difficulties to pick from:\n"
-        msg += "                                           > ** 1 **: Easy mode\n"
-        msg += "                                           > ** 2 **: Normal mode (Default)\n"
-        msg += "                                           > ** 3 **: Hard mode\n"
-        msg += "                                           > ** 4 **: Intense mode\n"
-        msg += "\n"
-        msg += "The choice of a difficulty is not required;\n"
-        msg += " If no difficulty is chosen, \"Normal mode\" will be picked.\n"
-        msg += "\n"
-        msg += "**playing the game:**\n"
-        msg += "STUFF STUFF STUFF\n"
-        msg += "[2] Hint uses 5 points per use, one use per game.\n"
-        msg += "\n"
-        msg += "\n"
+        msg += "-    Start Game:           *`" + prefix + " hm start`*\n"
+        msg += "-    Game Status:       *`" + prefix + " hm status`*\n"
+        msg += "-    Hint (-5pts):          *`" + prefix + " hm hint`* Coming soon\n"
+        msg += "-    Points:                     *`" + prefix + " hm points`* Coming soon\n"
         msg += "** ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~**\n"
+
+
         return msg;
     },
 
     randomWord: function() {
         return randomWord();
     }, //Returns: array(Category, Sub-category, Word)
-
-    getHint: function(randomWord) { /* requires word array generated by randomWord() */
-        return "[Hint] The word theme is \"" + randomWord[0] + " " + randomWord[1] + "\"";
-    },
 
     /** 
      * Check if guess is valid
@@ -305,10 +311,32 @@ module.exports = {
 
         // Return message
         return "```" + messageTitle + displayHangman + displayedWord + "\n " + prefix + " hmg <letter> to guess" + "```\n" + displayLetters;
+    },
+
+    // Make function to determine game status: "win"/"lose"/"ongoing" (input = (word, guessList, mode))
+    gameStatus: function(word, guessList, mode) {
+        //Determine if game is at the end.
+        // LOSE condition:
+        var stages = Object.values(Difficulty)[Object.keys(Difficulty).indexOf(getDifficulty(difficulty))];
+        var stageIndex = 0;
+        for (var i = 0; i < guessList.length; i++) {
+            if (!(includesLetter(word, guessList[i])) && (guessList[i] != " ")) { //If the letter in the guesslist is NOT in the word.
+                if (stageIndex < stages.length - 1) {
+                    stageIndex++;
+                } else {
+                    return "lose";
+                }
+            }
+
+        }
+        // WIN condition:
+        if (includesChars(word, guessList)) {
+            return "win";
+        }
+        return "ongoing";
     }
 };
 
-// Make function to determine game status: "win"/"lose"/"ongoing" (input = (word, guessList, mode))
 // Make function to display help message with arguments: [ hintCost, ...]
 // Make function to display win message, takes in the word + points + difficulty as arguments
 
