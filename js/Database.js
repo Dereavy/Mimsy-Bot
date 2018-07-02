@@ -189,21 +189,19 @@ module.exports = {
                             return 0;
                         };
                         //console.log(hangman.gameStatus(DBDecode(row.Word), DBDecode(row.Guess_List), row.Difficulty));
-                        if (hangman.gameStatus(DBDecode(row.Word), DBDecode(row.Guess_List), row.Difficulty) == "ongoing") {
+                        if (hangman.gameStatus(DBDecode(row.Word), DBDecode(row.Guess_List + letter), row.Difficulty) == "ongoing") {
                             channel.send(hangman.getMessage(DBDecode(row.Word), DBDecode(row.Guess_List), row.Difficulty));
                         }
-                        if (hangman.gameStatus(DBDecode(row.Word), DBDecode(row.Guess_List), row.Difficulty) == "lose") {
+                        if (hangman.gameStatus(DBDecode(row.Word), DBDecode(row.Guess_List + letter), row.Difficulty) == "lose") {
                             channel.send(hangman.getLoseMessage(channel, DBDecode(row.Word), DBDecode(row.Guess_List), row.Hint, row.Difficulty));
                             //Do losey stuff here (nothing)
                             hangmanStart(messageAuthorID, channel);
                         }
-                        if (hangman.gameStatus(DBDecode(row.Word), DBDecode(row.Guess_List), row.Difficulty) == "win") {
+                        if (hangman.gameStatus(DBDecode(row.Word), DBDecode(row.Guess_List + letter), row.Difficulty) == "win") {
                             channel.send(hangman.getWinMessage(channel, DBDecode(row.Word), DBDecode(row.Hint), row.Total_Points));
                             //Add points etc.. here.
                             var points = hangman.getWordScore(DBDecode(row.Word));
-                            var newPoints = (Number(points) + Number(row.Total_Points));
-                            console.log(newPoints);
-                            sql.run(`UPDATE hangman SET Total_Points = "` + newPoints + `" WHERE User_Id = "${messageAuthorID}"`);
+                            sql.run(`UPDATE hangman SET Total_Points =  +` + Number(points) + ` WHERE User_Id = "${messageAuthorID}"`);
                             hangmanStart(messageAuthorID, channel);
                         }
                         //console.log("[DATABASE] Hangman Status: " + row.User_ID + "|" + row.Session_Status + "|" + DBDecode(row.Word) + "|" + row.Guess_List + "|" + DBDecode(row.Hint) + "|" + row.Difficulty + "|" + row.Total_Points);
