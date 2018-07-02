@@ -47,7 +47,7 @@ const YTAPIStatusURL = ('https://www.googleapis.com/youtube/v3/liveBroadcasts?pa
 
 
 console.log(`[Start] ${new Date()}`);
-console.log(config.get.welcome);
+console.log(`[Start] ${config.get.welcome}`);
 setInterval(function() { //12 hour loop
     console.log('It\'s a new beautifull day!');
     tempSub = []; //Players can reuse the 'follow' command 
@@ -136,7 +136,7 @@ function isSubscribed(userID) {
 
 bot.on('ready', () => {
     bot.user.setActivity('with your mind!');
-    (bot.channels.get(config.get.suggestionsChannelID)).fetchMessages()
+    //(bot.channels.get(config.get.suggestionsChannelID)).fetchMessages() /*This is broken: TypeError: Cannot read property 'fetchMessages' of undefined*/
 });
 
 /* Chat */
@@ -266,26 +266,11 @@ bot.on('message', (message) => {
         var loggedMessage = "" + date + " " + "**[PM]** " + spacer + " " + message.author.username + "#" + message.author.discriminator + ": _`" + message.content + "`_";
         logChannel.send(loggedMessage);
         if (command == "respond") { message.author.send("Hello") }
+
+        /** HANGMAN */
         if (command == "hangman") { message.author.send(Hangman.help(config.get.prefix)) }
-        if ((command == "hm") && (lowercasemessage == "")) { message.author.send(Hangman.help(config.get.prefix)) }
-
-        function hangmanPlayer() {
-            return sql.get(
-                    `SELECT * FROM hangman WHERE User_ID = "${message.author.id}"`)
-                .then(
-                    row => {
-                        if (!row) {
-                            return true;
-                        } else {
-                            return false;
-                        }
-                    }
-                );
-        }
-
-
-        function hangmanSession() {
-            sql.get(`SELECT Session_Status FROM hangman WHERE User_ID = "${message.author.id}"`).then(row => { if (!row) {} else { return row.Session_Status; } });
+        if ((command == "hm") && (lowercasemessage == "")) {
+            message.author.send(Hangman.help(config.get.prefix))
         }
         if ((command == "hm") && (lowercasemessage.trim() == "start")) {
             DB.hangmanStart(message.author.id, message.author)
@@ -302,51 +287,6 @@ bot.on('message', (message) => {
         if ((command == "hm") && (lowercasemessage.trim() == "points")) {
             DB.hangmanGetPoints(message.author.id, message.author);
         }
-
-
-        /* new hangman user:
-                sql.run(
-                    "INSERT INTO hangman (User_ID, Session_Status, Word, Guess_List, Hint, Difficulty, Total_Points) VALUES (?, ?, ?, ?, ?, ?, ?)",
-                    [message.author.id, true, Hangman.randomWord()[2], "",false, 2, 0] );
-        */
-        /*    Hangman
-         *
-         * Function: hangmanPlayer(userID) -> check if user exists in table (true/false)
-         * Function: hangmanSession(userID) -> return Session_Status (true/false)
-         *
-         * !! hm start (arg)=>  | Check if user exists in "Hangman" table ( User_ID /Session_Status/ Word / Guess_List / Hint / Difficulty / TotalPoints)
-         *                      |                                         (example: 23456 / ("Minecraft", "Animals" , "Parrot") / "artesd" / true / "Hard" / 234 )
-         *                      | If hangmanPlayer() == false : Generate table for user
-         *                      | Set difficulty to "medium" if (arg) is not set (otherwise set to arg: 1=easy, 2=medium, 3=hard, 4=intense)
-         *                      | Generate random word for user 
-         *                      | Empty Guess List
-         *                      | Set Hint to true
-         *                      | Set Session_Status to true
-         *
-         * !! hm guess (arg)=>  | (hangmanPlayer() || hangmanSession()) == false => (throw message "You aren't playing a game atm" then Return;)
-         *                      | Add guess to guessList
-         *                      | Check for win (Hangman.js)
-         *                      |   On Win:
-         *                      |         ° getScore(Hangman.js) => add to TotalPoints
-         *                      |         ° Display "win message" (requires word/guessList)
-         *                      |         ° return
-         *                      |   On Lose:
-         *                      |         ° Display message
-         *                      |         ° set Session_Status to false
-         *                      | Display message (Hangman.js) (requires: word, guessList, mode)
-         * 
-         * 
-         * !! hm hint  =>       | If hangmanStatus() == true && Hint in table is true; 
-         *                      |         ° Remove hangmanHintCost points from user
-         *                      |         ° Set Hint in table to false
-         *                      |         ° Display hint to user : getHint(Word) (Hangman.js)
-         * 
-         * !! hm resume  => if (hangmanStatus() == true): Display message (Hangman.js) else: "No game to resume" message
-         * 
-         * !! hm points => return hangman total points (0 if user doesn't exist)
-         * 
-         * !! hm help => return help message (Hangman.js) (requires prefix)
-         */
 
         return;
     }
