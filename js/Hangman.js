@@ -113,6 +113,18 @@ function includesLetter(string, letter) {
     return false;
 }
 
+function getUnique(word) {
+    var uniq = "";
+    for (var i = 0; i < word.length; i++) {
+        if (includesLetter(uniq, word[i]) == false) {
+            if (!(word[i] == " ")) {
+                uniq += word[i]
+            }
+        }
+    }
+    return uniq;
+}
+
 //check if word contains all characters in string.
 function includesChars(word, string) {
     var checkString = "";
@@ -121,20 +133,10 @@ function includesChars(word, string) {
             if (word[i].toLowerCase() == string[j].toLowerCase()) { checkString += word[i] }
         }
     }
-    if (checkString.length == word.length) {
+    if (getUnique(checkString).length == getUnique(word).length) {
         return true;
     }
     return false;
-}
-
-function getUnique(word) {
-    var uniq = "";
-    for (var i = 0; i < word.length; i++) {
-        if (includesLetter(uniq, word[i]) == false) {
-            uniq += word[i]
-        }
-    }
-    return uniq;
 }
 
 function capFormat(text) {
