@@ -234,14 +234,24 @@ bot.on('message', (message) => {
     /* MEDALS */
 
     if (message.author.id == config.get.ownerID) { // OWNER COMMANDS
+        /**
+         * !! point (@user) (amount) # Gives amount of points to user
+         * 
+         * !! setpoints (@user) (amount) # Sets total points of user to set amount.
+         * 
+         */
         if (command == config.get.addPoints.toLowerCase()) {
             var goodBoiName = getArg(1);
             var goodBoiID = getArg(1).slice(2, getArg(1).length - 1);
             var goodBoiAmnt = Number(getArg(2));
-            //console.log("addGoodBoi(" + goodBoiID + ", " + goodBoiAmnt + ", " + message.channel + ")")
+            console.log("addGoodBoi(" + goodBoiID + ", " + goodBoiAmnt + ", " + message.channel + ")")
             DB.addGoodBoi(goodBoiID, goodBoiAmnt, message.channel);
             channel.send("<:medal:460520365026836501> Congratulations to <@" + goodBoiID + "> for gaining " + goodBoiAmnt + " " + config.get.points + "! <:medal:460520365026836501>");
 
+        }
+        // !! set(points) userID 0)
+        if (command == "set" + config.get.points) {
+            DB.setGoodBoi(getArg(1).slice(2, getArg(1).length - 1), Number(getArg(2)), message.channel)
         }
     }
     if (command == "top" + config.get.points) {
