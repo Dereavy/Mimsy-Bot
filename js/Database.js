@@ -64,23 +64,28 @@ module.exports = {
     addGoodBoi: function(userID, amount, channel) {
         var points = Number(amount);
         if (userID[0] == "!") {
-            userID = userID.slice(1, userID.length - 1);
+            userID = userID.slice(1, userID.length);
         }
         sql.get(`SELECT * FROM medals WHERE userId ="${userID}"`).then(row => {
             if (!row) {
                 sql.run("INSERT INTO medals (userId, points) VALUES (?, ?)", [userID, points]);
-                console.log(points + ' points added! (new row in existing table)');
+                console.log(userID + "=>" + points + ' points added! (new row in existing table)');
             } else {
                 sql.run(`UPDATE medals SET points = ${row.points + points} WHERE userId = ${userID}`);
-                console.log(points + ' points added! (existing row in existing table)');
+                console.log(userID + "=>" + points + ' points added! (existing row in existing table)');
             }
         }).catch(() => {
             console.error;
             sql.run("CREATE TABLE IF NOT EXISTS medals (userId TEXT, points INTEGER)").then(() => {
                 sql.run("INSERT INTO medals (userId, points) VALUES (?, ?)", [userID, points]);
-                console.log(points + ' points added! (new table created)');
+                console.log(userID + "=>" + points + ' points added! (new table created)');
             });
         });
+    },
+    setGoodBoi: function(userID, amount, channel) {
+        sql.run(`UPDATE medals SET points = ` + amount + ` WHERE userId = "${userID}"`).then(
+            channel.send("<@" + userID + "> now has " + amount + " " + config.get.points + "!")
+        );
     },
 
     getGoodBoi: function(userID, channel) { //Gets score of user.
