@@ -1,5 +1,21 @@
 ﻿"use strict";
+/**
+ * Make sure you have these following dependencies installed
 
+    npm install python-software-properties
+    npm install python
+    npm install g++
+    npm install make
+    npm install build-essential
+    npm install get-json
+    npm install util
+    npm install request
+    npm install discord.js
+    npm install fs
+    npm install js-yaml
+    npm install sqlite3 --build-from-source
+
+*/
 /* DEPENDENCIES */
 var getJSON = require('get-json');
 const util = require('util');
@@ -142,6 +158,7 @@ function isSubscribed(userID) {
 bot.on('ready', () => {
     bot.user.setActivity('with your mind!');
     //(bot.channels.get(config.get.suggestionsChannelID)).fetchMessages() /*This is broken: TypeError: Cannot read property 'fetchMessages' of undefined*/
+
 });
 
 /* Chat */
@@ -256,8 +273,39 @@ bot.on('message', (message) => {
         }
         // !! set(points) userID 0)
         if (command == "set" + config.get.points) {
-            DB.setGoodBoi(getArg(1).slice(2, getArg(1).length - 1), Number(getArg(2)), message.channel)
+            DB.setGoodBoi(Number(getArg(2)), message.channel);
         }
+    }
+    if (command == "avatar") { // Using Discord.js Master
+
+        // Slice '<@341231224142141224>' => '341231224142141224'
+        // var userID = getArg(1).slice(2, getArg(1).length - 1); // ex: userID = 341231224142141224
+        var regex = /(\d{1,})/;
+        var userID = getArg(1).match(regex)[1];
+        /**
+         * userA : GuildMember
+         * message.guild : Guild
+         */
+        message.guild.fetchMember(userID).then(userA => {
+
+            console.log("showing image of " + userA.user.tag);
+            //console.log(userA.user.avatarURL);
+
+            message.channel.send({
+                "embed": {
+                    "color": 14120349,
+                    //"timestamp": "2018-07-10T01:38:22.294Z",
+                    "image": {
+                        "url": userA.user.avatarURL
+                    },
+                    "author": {
+                        "name": userA.user.tag
+                    }
+                }
+            });
+        }).catch(reason => {
+            console.error('[Mimsy] I cannot show(userID), ' + reason);
+        });
     }
     if (command == "top" + config.get.points) {
         DB.getBestBois(message.channel);
@@ -404,6 +452,7 @@ bot.on('message', (message) => {
         helpMsg += config.get.prefix + ' Fact\n ';
         //helpMsg += config.get.prefix+' + ai < message directed to the ai > \n ' --Broken--
         helpMsg += config.get.prefix + ' Video\n ';
+        helpMsg += config.get.prefix + ' Avatar <@user> | Shows users profile picture\n ';
         helpMsg += config.get.prefix + ' SM <message> (SM = Spongebob Meme: Mockbob) the message for you\n ';
         helpMsg += config.get.prefix + ' Hangman |Start a hangman game!\n ';
         helpMsg += '\nVoice Channel: \n ';
