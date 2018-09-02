@@ -35,6 +35,7 @@ const Hangman = require("./js/Hangman.js");
 const Login = require('./js/botToken.js'); //Not included in the git file, see wiki for details.
 const DB = require('./js/Database.js');
 const config = require('./js/config.js');
+const RPG = require('./js/rpg.js');
 
 /* INITIALISATION */
 
@@ -449,7 +450,7 @@ bot.on('message', (message) => {
         helpMsg += config.get.prefix + ' Top' + config.get.points + " |Get list of members with most " + config.get.points + "\n ";
         helpMsg += config.get.prefix + ' Get' + config.get.points + " |Get your amount of " + config.get.points + "\n ";
         helpMsg += '\nFun Commands:\n ';
-        helpMsg += config.get.prefix + ' Fact\n ';
+        helpMsg += config.get.prefix + ' RPG | Generates an RPG character\n ';
         //helpMsg += config.get.prefix+' + ai < message directed to the ai > \n ' --Broken--
         helpMsg += config.get.prefix + ' Video\n ';
         helpMsg += config.get.prefix + ' Avatar <@user> | Shows users profile picture\n ';
@@ -509,9 +510,9 @@ bot.on('message', (message) => {
 
     //COMMANDS WITH PREFIX
     //Invalid command
-    // Build random fact
-    if (command == "fact") {
-        message.channel.send(Actions.randomInsult(message.author));
+    // Build random RPG
+    if (command == "RPG") {
+        message.channel.send(RPG.generateCharacter("<@" + message.author.id + ">"));
     }
     //Summon Mimsy to channel.
     const Vchannel = message.member.voiceChannel;
@@ -611,16 +612,7 @@ bot.on('message', (message) => {
     if (command == "ban") {
         message.channel.send(Actions.banMessageUser(lowercasemessage));
     }
-    //tests
-    if (command == "filter") {
-        message.channel.send(Actions.filter(lowercasemessage));
-    }
-    if (command == "filtere") {
-        message.channel.send(Actions.encodeUTF(lowercasemessage));
-    }
-    if (command == "filterd") {
-        message.channel.send(Actions.decodeUTF(lowercasemessage));
-    }
+
 
     // Get Mimsy to send you a video
     if (command == "video") {
@@ -630,28 +622,9 @@ bot.on('message', (message) => {
 
     if ((command == "test") && (message.channel.id == config.get.testChannelID)) {
 
-        //Function to be tested
-        // (`SELECT * FROM subscribers WHERE userId = "${message.author.id}"`) == row == {userId:'string', points:'integer'}
-        /*
-        sql.run(`DELETE * FROM subscribers WHERE userId = "${message.author.id}"`);
-        sql.run("DROP TABLE subscribers");
-        sql.run("CREATE TABLE IF NOT EXISTS subscribers (userId TEXT, points INTEGER)");
-        sql.get(`SELECT * FROM subscribers WHERE userId = "${message.author.id}"`).then(row => {
-            if (!row) { // Can't find the row.
-                console.log("this is a test"); // Nothing is logged
-                console.error;
-            } else {
-                console.log(row); // nothing is logged
-                console.error;
-            }
-            console.log(row); // nothing is logged
-            console.error;
-        }).catch(() => {
-            console.error;
-            console.log("creating table");
-            sql.run("CREATE TABLE IF NOT EXISTS subscribers (userId TEXT, points INTEGER)")
-        }); */
-
+    }
+    if (command == "merpg") {
+        message.author.send(RPG.generateCharacter("<@" + message.author.id + ">"));
     }
 
 
@@ -933,7 +906,6 @@ bot.on('message', (message) => {
 
 /* TO DO LIST */
 /*
-- Hangman
 - Poll
 */
 // CODE DUMP
