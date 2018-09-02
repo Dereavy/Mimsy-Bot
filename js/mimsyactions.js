@@ -21,7 +21,7 @@ function randomPlace() {
 }
 
 function randomColour() {
-    var theArray = ['Orange', 'Brown', 'Pink', 'Red', 'Green', 'Blue', 'Yellow', 'Purple', 'Moist', 'Gluey', 'Slimy', 'chocolaty'];
+    var theArray = ['Orange', 'Brown', 'Pink', 'Red', 'Green', 'Blue', 'Yellow', 'Purple', 'Moist', 'Sticky', 'Chocolate'];
     var choice = Math.floor(Math.random() * theArray.length);
     var myMessage = theArray[choice].toLowerCase();
     return myMessage + " ";
@@ -332,7 +332,7 @@ module.exports = {
         console.log(',@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@,');
         console.log(',@@@@@@@@@@@@@@@@@@@@@@@@@*  (@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@,');
         console.log(',@@@@@@@@@@@@@@@@@@@@@@@@@%   %@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@,');
-        console.log(',@@@@@@@@@@@@#   &@@@@#*,.  *@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@,');
+        console.log(',@@@@@@@@@@@@#   &@@@@#*,.  *@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@,');
         console.log(',@@@@@@@@@@@@,   %&../#####(..,.*@@@@@@@@@@@@@@@@@@@@@@@@@@@@@,');
         console.log(',@@@@@@@@@@@@@*   .(#(*,*###,(##/.(@@@@@@@@@@@@@@@@@@@@@@@@@@@,');
         console.log(',@@@@@@@@@@@@@@..,((*####/,##,###*.&@@@@@@@@@@@#/*.*&@@@@@@@@@,');
