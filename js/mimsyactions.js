@@ -28,7 +28,7 @@ function randomColour() {
 }
 
 function randomAction() {
-    var theArray = ['Eating', 'Throwing', 'Humping', 'Scratching', 'Swimming with', 'Listening to', 'Reading', 'Holding'];
+    var theArray = ['Eating', 'Throwing', 'Scratching', 'Swimming with', 'Listening to', 'Holding'];
     var choice = Math.floor(Math.random() * theArray.length);
     var myMessage = theArray[choice].toLowerCase();
     return myMessage + " ";
@@ -147,7 +147,7 @@ module.exports = {
         return ("https://www.youtube.com/watch?v=" + randomVideoID())
     },
     pong: function() {
-        var pongs = ['bang!', 'pong pong', 'poNg', 'PonG!', 'Pong!!!', 'pOng!', 'Pong!', 'Pong!', 'Pong!', 'pOong..', 'Stop pinging your paper balls in my direction!'];
+        var pongs = ['bang!', 'pong pong', 'poNg', 'PonG!', 'Pong!!!', 'pOng!', 'Pong!', 'Pong!', 'Pong!', 'pOong..', 'pingity pongity', 'pongerino', 'Stop pinging and start ponging!'];
         var choice = Math.floor(Math.random() * pongs.length);
         var myMessage = pongs[choice];
         return myMessage;
@@ -240,6 +240,20 @@ module.exports = {
             }
         }
         return null;
+    },
+    rainbowText: function(text) {
+        var rainbow = ['&5', '&d', '&c', '&6', '&e', '&a', '&2', '&3', '&9', '&1'];
+        var counter = 0;
+        var newMsg = "";
+        for (var i = 0; i < text.length; i++) {
+            if (text[i] != " ") {
+                newMsg += rainbow[counter] + text[i];
+                ((counter + 1) < rainbow.length) ? (counter++) : (counter = 0);
+            } else {
+                newMsg += text[i];
+            }
+        }
+        return newMsg;
     },
     //(http:|https:)?\/\/(www\.)?(youtube\.com|youtu\.be)\/(watch)?(\?v=)?(\S+)?
     //(http:|https:)?//(www.)?(youtube.com|youtu.be)/(watch)?(?v=)?(S+)?
