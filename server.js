@@ -180,7 +180,25 @@ function removeCircularReferences(obj) {
     for (const prop in obj) typeof obj[prop] === "object" && obj[prop] !== null && (objs.has(obj[prop]) ? delete obj[prop] : objs.set(obj[prop]));
 }
 
-
+bot.on('messageDelete', (message) => {
+    var channel = message.channel;
+    if (message.author.bot) {
+        if (message.channel.id == config.get.suggestionsChannelID) {}
+        return;
+    }
+    var modChannel = bot.channels.get(config.get.moderationChannelID);
+    modChannel.send({
+        "embed": {
+            "description": "**Deleted message : **\n**User : **" + message.author.tag + "\n**ID : ** " + message.author.id + " \n ```\n" + message.content + "```",
+            "color": 14120349,
+            "author": {
+                "name": "A message has been deleted!"
+            }
+        }
+    }).catch(reason => {
+        console.error('[Mimsy] I cannot see who deleted this message, ' + reason);
+    });
+});
 bot.on('messageReactionAdd', (reaction, user) => {
     if ((reaction.message.channel.id == config.get.suggestionsChannelID) && (user.id == config.get.ownerID)) {
         if (reaction.emoji.identifier == "%E2%9C%85") {
@@ -321,6 +339,7 @@ bot.on('message', (message) => {
         message.author.send(Hangman.help());
         message.delete(1000).catch(O_o => {});
     }
+
     //PRIVATE MESSAGES
     if (message.channel.type == "dm") {
 
@@ -511,7 +530,7 @@ bot.on('message', (message) => {
     //COMMANDS WITH PREFIX
     //Invalid command
     // Build random RPG
-    if (command == "RPG") {
+    if (command == "rpg") {
         message.channel.send(RPG.generateCharacter("<@" + message.author.id + ">"));
     }
     //Summon Mimsy to channel.
@@ -611,6 +630,11 @@ bot.on('message', (message) => {
     //I have no idea what this does anymore
     if (command == "ban") {
         message.channel.send(Actions.banMessageUser(lowercasemessage));
+    }
+
+    // Transform text to minecraft rainbow
+    if (command == "rb") {
+        message.channel.send(Actions.rainbowText(lowercasemessage));
     }
 
 
@@ -882,7 +906,7 @@ bot.on('message', (message) => {
         message.channel.send({
             embed: {
                 color: 439293,
-                description: Animals.Giraffe(args[0])
+                description: Animals.Giraffe((lowercasemessage.trim().split(/ +/g))[1])
             }
         });
     }
