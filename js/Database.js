@@ -58,6 +58,27 @@ function hangmanStart(messageAuthorID, channel) {
         console.log("[DATABASE] Created hangman table for " + messageAuthorID + " - Word:\"" + word + "\" Hint:\"" + hint + "\"");
     });
 }
+
+function arrayToList(array) {
+    // Expects array A = [1, 2, 3, 4, 5]
+    // Outputs list  A = "1, 2, 3, 4, 5"
+}
+
+/**
+ * "INSERT INTO table (value[1], value[2]) VALUES (?, ?)"
+ * @param {string} table - The table to update.
+ * @param {array} args - The columns that needs updating.
+ * @param {array} values - The values to go in those columns.
+ */
+function insert(table, args, values) {
+    columns = arrayToList(args);
+    values = arrayToList(values);
+}
+
+function update(table) {}
+
+function del(table, arg) {}
+
 module.exports = {
 
     /** MEDALS */
