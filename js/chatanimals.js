@@ -21,7 +21,7 @@ module.exports = {
         message += " | |----| |\n";
         message += " ^^      ^^\n";
         return message;
-    },
+    }
 
 
 };
