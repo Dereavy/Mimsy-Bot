@@ -14,23 +14,7 @@ var Dictionary = {
     "items": ["Shell", "Pebble", "Pinecone", "SeaWeed", "Log", "Fossil", "Cool Mineral", "Heavy Stone", "Stick", "Bag of salt", "Gold coin", "Water bottle", "Door handle"],
     "temperaments": ['Angry', 'Soulless', 'Happy', 'Spiteful', 'Confused', 'Proud', 'Victorious', 'Evil', 'Grumpy', 'Focussed', 'Fast-thinking', 'Talkative', 'Noisy', 'Quiet', 'Shy', 'Heroic', 'Dumb', 'Smart', 'Cheerful', 'Funny', 'Cold-hearted', 'Wholesome', 'Lone', 'Sneaky', 'Heavy-footed', 'Confident']
 };
-/* Hangmman random word example function
-function randomWord() {
-    //Generate random category
-    var version = Math.floor(Math.random() * Object.keys(Dictionary).length);
-    randomVersion = Object.values(Dictionary)[version];
 
-    //Generate random sub-category from above category
-    var category = Math.floor(Math.random() * Object.keys(randomVersion).length);
-    randomCategory = Object.values(randomVersion)[category];
-    //Generate random word from above sub-category
-    hangmanWord = randomCategory[Math.floor(Math.random() * Object.keys(randomCategory).length)];
-
-    randomVersionName = Object.keys(Dictionary)[version];
-    randomCategoryName = Object.keys(randomVersion)[category];
-    return [randomVersionName, randomCategoryName, hangmanWord];
-}
-*/
 function getWordFromCategory(category) {
     var categoryList = Object.keys(Dictionary);
     var categoryIndex = 0;
@@ -87,7 +71,7 @@ module.exports = {
         armor = getArmorSet(3);
         weapon = getWordFromCategory("weapons");
         inventory = getRandomInventory(3);
-        var msg = "A new character joined the game: @" + player + "\n```";
+        var msg = "A new character joined the game: " + player + "\n```";
         msg += "Character: " + character + "\n";
         msg += "Armor: " + armor + "\n";
         msg += "Weapon: " + weapon + "\n";
