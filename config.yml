@@ -13,7 +13,7 @@
     logChannelID: "415987090480955392"
 
 # Mimsy-Talk Channel - Channel where mimsy will respond to messages
-    mimsyTalkChannelID: "390243354211909632"
+    mimsyChannelID: "498905030875807776"
     
 # Soundboard Channel
     soundboardChannelID: "414497480928133120"
@@ -40,7 +40,8 @@
     noTagRoleID: "410461710332329985"
 
 
-
+# Daily Greeting
+    dailyGreeting: true
 #List channels where YT videos are allowed to be posted:
     allowedYTChannelIDs: [378315211607769089, 317066233230917632, 343748288702578689, 311545553198645248, 441680626869993472]
 
