@@ -73,6 +73,7 @@ console.log(` [Mimsy] Hello!`);
 setInterval(function() { //12 hour loop
     console.log('It\'s a new beautifull day!');
     tempSub = []; //Players can reuse the 'follow' command 
+
 }, 43200000);
 setInterval(function() { //2 hour loop
     if ((((new Date()).getHours()) == 6) || (((new Date()).getHours()) == 18)) {
@@ -159,7 +160,12 @@ function isSubscribed(userID) {
 bot.on('ready', () => {
     bot.user.setActivity('with your mind!');
     //(bot.channels.get(config.get.suggestionsChannelID)).fetchMessages() /*This is broken: TypeError: Cannot read property 'fetchMessages' of undefined*/
-
+    mimsyChannel = bot.channels.get(config.get.mimsyChannelID);
+    setInterval(function() { //12 hour loop
+        if (config.get.dailyGreeting == true) {
+            mimsyChannel.send('It\'s a new beautifull day!');
+        }
+    }, 43200000);
 });
 
 /* Chat */
