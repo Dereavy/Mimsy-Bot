@@ -160,7 +160,7 @@ function isSubscribed(userID) {
 bot.on('ready', () => {
     bot.user.setActivity('with your mind!');
     //(bot.channels.get(config.get.suggestionsChannelID)).fetchMessages() /*This is broken: TypeError: Cannot read property 'fetchMessages' of undefined*/
-    mimsyChannel = bot.channels.get(config.get.mimsyChannelID);
+    var mimsyChannel = bot.channels.get(config.get.mimsyChannelID);
     setInterval(function() { //12 hour loop
         if (config.get.dailyGreeting == true) {
             mimsyChannel.send('It\'s a new beautifull day!');
