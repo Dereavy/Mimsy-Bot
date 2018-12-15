@@ -242,7 +242,7 @@ module.exports = {
         return null;
     },
     rainbowText: function(text) {
-        var rainbow = ['&5', '&d', '&c', '&6', '&e', '&a', '&2', '&3', '&9', '&1'];
+        var rainbow = ['&5', '&d', '&c', '&6', '&e', '&a', '&2', '&3', '&9'];
         var counter = 0;
         var newMsg = "";
         for (var i = 0; i < text.length; i++) {
