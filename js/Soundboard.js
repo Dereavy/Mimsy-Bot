@@ -35,7 +35,10 @@ var sounds = [
     "34-Fatality.mp3",
     "35-Burns_excellent.mp3",
     "36-Cuek.mp3",
-    "37-lalalalala.mp3"
+    "37-lalalalala.mp3",
+    "38-im_sexy_and_i_know_it.mp3",
+    "39-mi3.mp3",
+    "40-trollolol.mp3"
 ];
 var notes = {
     "c1": "q",
@@ -101,6 +104,9 @@ module.exports = {
         message += " |  35- Burns excellent               |\n";
         message += " |  36- Cuek!                         |\n";
         message += " |  37- Lalalalala                    |\n";
+        message += " |  38-im_sexy_and_i_know_it          |\n";
+        message += " |  39-mi3                            |\n";
+        message += " |  40-trollolol                      |\n";
         message += "```";
         return message;
     },
