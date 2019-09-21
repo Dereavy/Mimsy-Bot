@@ -132,13 +132,13 @@ module.exports = {
         return myMessage + "";
     },
     randomSummonMessage: function() {
-        var theArray = ['BUNGEE', 'HELLO', 'JUMP1', 'SURPRISE', 'SURPRISE', 'JUMP2', 'HELLO', 'HELLO'];
+        var theArray = ['BUNGEE', 'HELLO', 'JUMP1', 'SURPRISE', 'SURPRISE', 'JUMP2', 'HELLO', 'HELLO', 'TELEPORT'];
         var choice = Math.floor(Math.random() * theArray.length);
         var myMessage = theArray[choice].toLowerCase();
         return myMessage;
     },
     randomDismissMessage: function() {
-        var theArray = ['BORING', 'BYEBYE', 'JUMP2', 'OUCH', 'RUNAWAY', 'YOULLREGRETTHAT'];
+        var theArray = ['BORING', 'BYEBYE', 'JUMP2', 'OUCH', 'RUNAWAY', 'YOULLREGRETTHAT', 'COUGH1'];
         var choice = Math.floor(Math.random() * theArray.length);
         var myMessage = theArray[choice].toLowerCase();
         return myMessage;
