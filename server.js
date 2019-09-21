@@ -71,7 +71,7 @@ console.log(` `);
 console.log(` [Mimsy] Hello!`);
 
 setInterval(function() { //12 hour loop
-    console.log('It\'s a new beautifull day!');
+    console.log('It\'s a new beautiful day!');
     tempSub = []; //Players can reuse the 'follow' command 
 
 }, 43200000);
@@ -163,7 +163,7 @@ bot.on('ready', () => {
     var mimsyChannel = bot.channels.get(config.get.mimsyChannelID);
     setInterval(function() { //12 hour loop
         if (config.get.dailyGreeting == true) {
-            mimsyChannel.send('It\'s a new beautifull day!');
+            mimsyChannel.send('It\'s a new day!');
         }
     }, 43200000);
 });
@@ -190,6 +190,9 @@ bot.on('messageDelete', (message) => {
     var channel = message.channel;
     if (message.author.bot) {
         if (message.channel.id == config.get.suggestionsChannelID) {}
+        return;
+    }
+    if (channel == bot.channels.get(config.get.soundboardChannelID)) {
         return;
     }
     var modChannel = bot.channels.get(config.get.moderationChannelID);
@@ -897,6 +900,14 @@ bot.on('message', (message) => {
         });
     }
 
+    // TODO make command to get user from name
+    if (command == "annoy") {
+        var victim = message.mentions.members.first();
+
+        victim.send("hello! Here is a message from " + message.author.tag + ": https://youtu.be/dQw4w9WgXcQ");
+        message.delete(1000).catch(O_o => {});
+    }
+
     // Dog
     if (command == "dog") {
         message.channel.send({
@@ -933,7 +944,23 @@ bot.on('message', (message) => {
     var oldmessage = lowercasemessage;
 });
 
-
+/**
+ * When the player joins a channel with the VIP role, the bot joins them.
+ */
+bot.on('voiceStateUpdate', (oldMember, newMember) => {
+    //newMember.user.dmChannel.sendMessage("hello just testing something, ignore me ;)");
+    var Vchannel = newMember.voiceChannel;
+    if (!(Vchannel === undefined) && (newMember.roles.get(config.get.VIPRoleID) != null)) {
+        activeVoiceChannel = Vchannel.id;
+        Vchannel.join()
+            .then(connection => {
+                console.log('Connected to voice channel : ' + Vchannel.name);
+                const dispatcher = connection.playFile('./sounds/' + Actions.randomSummonMessage() + '.WAV');
+                dispatcher.on("end", end => { /*channel.leave()*/ });
+            })
+            .catch(console.error);
+    }
+});
 /* TO DO LIST */
 /*
 - Poll
