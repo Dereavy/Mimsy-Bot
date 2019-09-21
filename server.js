@@ -657,7 +657,7 @@ bot.on('message', (message) => {
 
     }
     if (command == "merpg") {
-        message.author.send(RPG.generateCharacter("<@" + message.author.id + ">"));
+        message.channel.send(RPG.generateCharacter("<@" + message.author.id + ">"));
     }
 
 
@@ -948,41 +948,42 @@ bot.on('message', (message) => {
  * When the player joins a channel with the VIP role, the bot joins them.
  */
 bot.on('voiceStateUpdate', (oldMember, newMember) => {
-    //newMember.user.dmChannel.sendMessage("hello just testing something, ignore me ;)");
+
+
+
+    /**
+     * Connect to voice chat if user has specific role also joins voice chat
+     */
+
     var Vchannel = newMember.voiceChannel;
     if (!(Vchannel === undefined) && (newMember.roles.get(config.get.VIPRoleID) != null)) {
         activeVoiceChannel = Vchannel.id;
         Vchannel.join()
             .then(connection => {
-                console.log('Connected to voice channel : ' + Vchannel.name);
                 const dispatcher = connection.playFile('./sounds/' + Actions.randomSummonMessage() + '.WAV');
                 dispatcher.on("end", end => { /*channel.leave()*/ });
             })
             .catch(console.error);
     }
+
+    /**
+     * Leave voice chat when channel is empty (just the bot, alone)
+     */
+    if (oldMember.voiceChannel) {
+        if (oldMember.voiceChannel.members.size == 1) {
+            if ((oldMember.voiceChannel.members.first().user.bot) && (newMember.voiceChannelID == undefined)) {
+                Vchannel = oldMember.voiceChannel;
+                Vchannel.leave()
+            };
+        } else {
+
+        };
+    }
+
 });
 /* TO DO LIST */
 /*
 - Poll
 */
-// CODE DUMP
-/* Get comments from youtube
-crawl(function(id, title) {
-    VIDEO_ID = id;
-    VIDEO_TITLE = title;
-    console.log("[DEBUG] Crawl Response said: VIDEO_TITLE: ==" + VIDEO_TITLE + "== and VIDEO_ID: ==" + VIDEO_ID + "==");
-    const stream = commentsStream(VIDEO_ID);
-    stream.on('data', function(comment) {
-        console.log(comment.text);
-    });
-    stream.on('error', function(err) {
-        console.error('ERROR READING COMMENTS:', err);
-    });
-    stream.on('end', function() {
-        console.log('NO MORE COMMENTS');
-        process.exit();
-    });
-});*/
-
 
 bot.login(Login.getToken());
