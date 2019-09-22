@@ -36,6 +36,7 @@ const Login = require('./js/botToken.js'); //Not included in the git file, see w
 const DB = require('./js/Database.js');
 const config = require('./js/config.js');
 const RPG = require('./js/rpg.js');
+const Playlist = require('./js/Playlist.js');
 
 /* INITIALISATION */
 
@@ -606,30 +607,6 @@ bot.on('message', (message) => {
         }
     }
 
-    /* //Piano [DEPRECATED]
-    if (message.channel.id == 414750345110224896) {
-        if (command == "piano") {
-            if (lowercasemessage == "help") {
-                message.delete(1000).catch(O_o => {});
-                message.author.sendMessage(Soundboard.getPianoTutorial());
-            } else if (!(channel === undefined) && (activeVoiceChannel == channel.id)) {
-                for (i = 0; i < lowercasemessage.length; i++) {
-                    var file = './sounds/piano/' + Soundboard.playNote(lowercasemessage[i]);
-                    console.log(lowercasemessage[i] + "//" + Soundboard.playNote(lowercasemessage[i]) + "//" + file);
-                    channel.join()
-                        .then(connection => {
-                            var dispatcher = connection.playFile(file); //*HERE* CANNOT PLAY MULTIPLE NOTES FOR SOME REASON
-                            dispatcher.on("end", end => {});
-                        })
-                        .catch(console.error);
-                }
-            }
-        } else if (message.author.id != ownerID) {
-            message.delete(1000).catch(O_o => {});
-        }
-    } 
-    */
-
     //Sponge Meme
     if (command == "sm") {
         message.delete(1000).catch(O_o => {}); //Supposed to delete message
@@ -927,6 +904,19 @@ bot.on('message', (message) => {
             }
         });
     }
+
+
+    /**
+     * Music Bot Functionality
+     */
+    if (command == "play") { Playlist.play(message) };
+    if (command == "skip") { Playlist.skip(message) };
+    if (command == "stop") { Playlist.stop(message) };
+    if (command == "volume") { Playlist.volume(message) };
+    if (command == "np") { Playlist.np(message) };
+    if (command == "queue") { Playlist.queue(message) };
+    if (command == "pause") { Playlist.pause(message) };
+    if (command == "resume") { Playlist.resume(message) };
 
     // session is your session name, it will either be as you set it previously, or cleverbot.io will generate one for you
     // Woo, you initialized cleverbot.io.  Insert further code here.
