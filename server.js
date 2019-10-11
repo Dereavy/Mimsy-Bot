@@ -483,6 +483,7 @@ bot.on('message', (message) => {
         //helpMsg += config.get.prefix+' + ai < message directed to the ai > \n ' --Broken--
         helpMsg += config.get.prefix + ' Video\n ';
         helpMsg += config.get.prefix + ' Avatar <@user> | Shows users profile picture\n ';
+        helpMsg += config.get.prefix + ' Quote | Shows an inspirational quote\n ';
         helpMsg += config.get.prefix + ' SM <message> (SM = Spongebob Meme: Mockbob) the message for you\n ';
         helpMsg += config.get.prefix + ' Hangman |Start a hangman game!\n ';
         helpMsg += '\nVoice Channel: \n ';
@@ -607,6 +608,38 @@ bot.on('message', (message) => {
         }
     }
 
+    async function sendQuote(channel) {
+        request.get('http://inspirobot.me/api?generate=true', function(error, response, body) {
+            channel.send({
+                "embed": {
+                    "color": 14120349,
+                    //"timestamp": "2018-07-10T01:38:22.294Z",
+                    "image": {
+                        "url": body
+                    }
+                }
+            });
+        });
+    }
+    async function sendXMasQuote(channel) {
+        request.get('http://inspirobot.me/api?generate=true&season=xmas', function(error, response, body) {
+            channel.send({
+                "embed": {
+                    "color": 14120349,
+                    //"timestamp": "2018-07-10T01:38:22.294Z",
+                    "image": {
+                        "url": body
+                    }
+                }
+            });
+        });
+    }
+    if (command == "quote") {
+        sendQuote(bot.channels.get(config.get.quoteChannelID));
+    }
+    if (command == "xmasquote") {
+        sendXMasQuote(bot.channels.get(config.get.quoteChannelID));
+    }
     //Sponge Meme
     if (command == "sm") {
         message.delete(1000).catch(O_o => {}); //Supposed to delete message
