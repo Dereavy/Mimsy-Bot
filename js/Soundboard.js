@@ -38,7 +38,8 @@ var sounds = [
     "37-lalalalala.mp3",
     "38-im_sexy_and_i_know_it.mp3",
     "39-mi3.mp3",
-    "40-trollolol.mp3"
+    "40-trollolol.mp3",
+    "41-NotReallyFine.wav"
 ];
 var notes = {
     "c1": "q",
@@ -107,6 +108,7 @@ module.exports = {
         message += " |  38-im_sexy_and_i_know_it          |\n";
         message += " |  39-mi3                            |\n";
         message += " |  40-trollolol                      |\n";
+        message += " |  41-NotReallyFine                  |\n";
         message += "```";
         return message;
     },
