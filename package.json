@@ -20,7 +20,7 @@
     "cheerio": "^1.0.0-rc.2",
     "cleverbot.io": "^1.0.4",
     "control.monads": "^0.6.0",
-    "convict": "^4.0.2",
+    "convict": "^6.2.4",
     "core.lambda": "^1.0.0",
     "data-store": "^1.0.0",
     "data.either": "^1.5.1",
